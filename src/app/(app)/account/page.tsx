@@ -10,6 +10,7 @@ import { signOut } from "@/app/auth/actions";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ChessForm } from "./ChessForm";
 import { AudienceToggle } from "./AudienceToggle";
+import { SteamCard } from "./SteamCard";
 
 export const metadata: Metadata = { title: "Your account · Tap" };
 
@@ -46,6 +47,8 @@ async function Account() {
       .eq("source", "chesscom")
       .maybeSingle(),
   ]);
+  const { data: steam } = await supabase
+    .from("connections").select("external_username, audience").eq("user_id", user.id).eq("source", "steam").maybeSingle();
   const chessName = chess?.external_username ?? null;
   const chessAudience = chess?.audience === "friends" ? "friends" : "only-me";
 
@@ -85,6 +88,8 @@ async function Account() {
           </div>
         )}
       </section>
+
+      <SteamCard current={steam?.external_username ?? null} audience={steam?.audience === "friends" ? "friends" : "only-me"} />
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>

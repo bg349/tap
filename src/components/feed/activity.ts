@@ -3,7 +3,7 @@ const VERBS: Record<string, Record<string, string>> = {
   chesscom: { game: "finished a game", milestone: "hit a new rating high" },
   spotify: { listening: "is listening to", track: "played" },
   strava: { run: "completed a run", ride: "completed a ride", activity: "finished a workout" },
-  steam: { playing: "is playing", achievement: "unlocked an achievement" },
+  steam: { playing: "is playing", played: "played", achievement: "unlocked an achievement" },
 };
 const ICONS: Record<string, string> = { chesscom: "♟", spotify: "♪", strava: "↗", steam: "🎮" };
 
