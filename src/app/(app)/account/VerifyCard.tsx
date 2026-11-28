@@ -124,7 +124,7 @@ export function VerifyCard({ source, view, icon, blurb, masterPaused = false }: 
               </ol>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <a href={svc.editUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center rounded-xl border border-[var(--border)] px-4 text-sm font-medium">
-                  Open {svc.name} settings
+                  {source === "letterboxd" ? "Open Letterboxd" : `Open ${svc.name} settings`}
                 </a>
                 <form action={checkAction}>
                   <input type="hidden" name="source" value={source} />

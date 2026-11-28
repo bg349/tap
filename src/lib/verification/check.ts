@@ -27,17 +27,23 @@ export async function findCode(source: CodeSource, account: string, code: string
       return hasCode(body.location ?? "", code) ? "found" : "missing";
     }
     if (source === "lastfm") {
-      const res = await get(`${LASTFM_SITE}/user/${encodeURIComponent(account)}`, "text/html");
-      if (res.status === 404) return "no_such_account";
-      if (!res.ok) return "unreachable";
-      return hasCode(await res.text(), code) ? "found" : "missing";
+      // last.fm's website refuses server requests (406), so read "Name" through the official API.
+      const key = process.env.LASTFM_API_KEY;
+      if (!key) return "unreachable";
+      const qs = new URLSearchParams({ method: "user.getinfo", user: account, api_key: key, format: "json" });
+      const res = await get(`https://ws.audioscrobbler.com/2.0/?${qs}`, "application/json");
+      const body = (await res.json().catch(() => null)) as { error?: number; user?: { realname?: string } } | null;
+      if (body?.error === 6 || res.status === 404) return "no_such_account";
+      if (!res.ok || !body || body.error) return "unreachable";
+      return hasCode(body.user?.realname ?? "", code) ? "found" : "missing";
     }
     if (source === "xbox") {
       const who = await lookupGamertag(account);
       if (!who) return "no_such_account";
       return hasCode(who.bio, code) ? "found" : "missing";
     }
-    const res = await get(`${LETTERBOXD}/${encodeURIComponent(account)}/`, "text/html");
+    // letterboxd's profile page sits behind Cloudflare, but the public RSS feed is open and carries review text.
+    const res = await get(`${LETTERBOXD}/${encodeURIComponent(account)}/rss/`, "application/rss+xml");
     if (res.status === 404) return "no_such_account";
     if (!res.ok) return "unreachable";
     return hasCode(await res.text(), code) ? "found" : "missing";
