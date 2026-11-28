@@ -8,7 +8,7 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", ready: true },
-  { id: "friends", label: "Friends", href: "/friends", ready: false },
+  { id: "friends", label: "Friends", href: "/friends", ready: true },
   { id: "link", label: "Link accounts", href: "/account", ready: true },
   { id: "notifications", label: "Notifications", href: "/notifications", ready: false },
   { id: "profile", label: "Profile", href: "/profile", ready: true },

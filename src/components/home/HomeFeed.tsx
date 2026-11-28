@@ -1,15 +1,17 @@
-import Link from "next/link";
-import { getFeed, getFriends } from "@/lib/home/data";
-import { getUser } from "@/lib/supabase/server";
+import { Suspense } from "react";
+import { Feed } from "@/components/feed/Feed";
 import { AppShell } from "@/components/shell/AppShell";
-import { FeedCard } from "./FeedCard";
-import { FriendsRow } from "./FriendsRow";
+import { card } from "@/components/ui";
+import { currentTime } from "@/lib/feed/time";
+import { loadPosts } from "@/lib/feed/queries";
+import { loadFriendships } from "@/lib/social/queries";
+import { createClient, getUser } from "@/lib/supabase/server";
+import { FriendsRow, type Friend } from "./FriendsRow";
 
 /** Logged-in homepage. Returns null when signed out so the caller can show the landing page. */
 export async function HomeFeed() {
   const user = await getUser();
   if (!user) return null;
-  const [friends, feed] = await Promise.all([getFriends(user.id), getFeed(user.id)]);
   const name =
     (typeof user.user_metadata?.chesscom === "string" && user.user_metadata.chesscom) ||
     user.email?.split("@")[0] ||
@@ -17,25 +19,30 @@ export async function HomeFeed() {
 
   return (
     <AppShell>
-      <FriendsRow me={{ name }} friends={friends} />
-      <div className="mt-5 flex flex-col gap-4">
-        {feed.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[var(--border)] px-6 py-14 text-center">
-            <div className="text-lg font-semibold">It&apos;s quiet in here.</div>
-            <p className="mx-auto mt-2 max-w-xs text-sm text-[var(--muted)]">
-              When your friends play, listen or work out, it shows up here. Link your accounts so they can see you too.
-            </p>
-            <Link
-              href="/account"
-              className="mt-5 inline-flex h-11 items-center rounded-full bg-[var(--brand)] px-6 font-medium text-[var(--brand-ink)] transition-opacity hover:opacity-90"
-            >
-              Link an account
-            </Link>
-          </div>
-        ) : (
-          feed.map((item) => <FeedCard key={item.id} item={item} />)
-        )}
+      <Suspense fallback={<div className="h-24" />}>
+        <Friends userId={user.id} name={name} />
+      </Suspense>
+      <div className="mt-5">
+        <Suspense fallback={<div className={`${card} h-40 animate-pulse`} />}>
+          <Feed userId={user.id} />
+        </Suspense>
       </div>
     </AppShell>
   );
+}
+
+async function Friends({ userId, name }: { userId: string; name: string }) {
+  const supabase = await createClient();
+  const [{ friends }, posts] = await Promise.all([loadFriendships(supabase, userId), loadPosts(supabase, userId)]);
+  const now = currentTime();
+  const latest = new Map<string, number>();
+  for (const p of posts) {
+    const t = new Date(p.occurredAt).getTime();
+    if (t > (latest.get(p.author.id) ?? 0)) latest.set(p.author.id, t);
+  }
+  const row: Friend[] = friends.map(({ person: f }) => {
+    const t = latest.get(f.id) ?? 0;
+    return { id: f.id, handle: f.handle, name: f.displayName, active: now - t < 15 * 60_000, hasNew: now - t < 24 * 3600_000 };
+  });
+  return <FriendsRow me={{ name }} friends={row} />;
 }
