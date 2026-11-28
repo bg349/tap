@@ -35,3 +35,14 @@ Set `CHESSCOM_API_BASE` to point the chess.com provider at a mock server, e.g. `
 ## Stack
 
 Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS v4. chess.com responses are cached for a few minutes with `"use cache"`.
+
+## Accounts (Supabase)
+
+Sign-up and sign-in use Supabase Auth (project `tap`). Set these env vars locally in `.env.local` and on Vercel:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://dtxrvqcckszcpwbxmzbf.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable key from Supabase>
+```
+
+New users get a `profiles` row (and a `connections` row for chess.com, if given) from the trigger in `supabase/migrations/`.

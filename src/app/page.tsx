@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { AuthNav, GuestNav } from "@/components/AuthNav";
 import { Logo } from "@/components/Logo";
 import { providers, upcoming } from "@/lib/providers/registry";
 
@@ -5,7 +7,12 @@ export default function Home() {
   const [primary] = providers;
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 py-8 sm:py-14">
-      <Logo />
+      <header className="flex items-center justify-between">
+        <Logo />
+        <Suspense fallback={<GuestNav />}>
+          <AuthNav />
+        </Suspense>
+      </header>
 
       <h1 className="mt-14 text-4xl leading-[1.05] font-semibold tracking-tight sm:text-5xl">
         Everything you play, stream and do.
