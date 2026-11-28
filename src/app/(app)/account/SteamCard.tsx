@@ -1,9 +1,8 @@
-"use client";
-
-import { useActionState } from "react";
-import { button, card, input, label } from "@/components/ui";
+import { button, card } from "@/components/ui";
 import { AudienceToggle } from "./AudienceToggle";
-import { saveSteamAccount } from "./steam-actions";
+import { StatusBadge } from "./VerifyCard";
+import { SteamUnlink } from "./SteamUnlink";
+import type { LinkView } from "@/lib/verification/config";
 
 function SteamLogo() {
   return (
@@ -18,42 +17,46 @@ function SteamLogo() {
   );
 }
 
-/** Link card for Steam: paste a profile URL, vanity name or SteamID. Private by default. */
-export function SteamCard({ current, audience }: { current: string | null; audience: "only-me" | "friends" }) {
-  const [state, action, pending] = useActionState(saveSteamAccount, undefined);
-  const linked = Boolean(current) && state?.notice !== "Steam unlinked.";
+const MESSAGES: Record<string, string> = {
+  taken: "Another Tap account has already verified that Steam profile.",
+  failed: "Steam couldn't confirm the sign-in. Please try again.",
+  state: "That sign-in expired. Please try again.",
+};
+
+/** Steam proves ownership by signing in with Steam itself (OpenID), so no code is needed. */
+export function SteamCard({ view, result }: { view: LinkView; result?: string }) {
+  const verified = view.status === "verified";
   return (
     <section className={`${card} mt-6`}>
       <div className="flex items-center gap-3">
         <SteamLogo />
         <div className="font-semibold">Steam</div>
-        {linked && <span className="ml-auto text-sm text-[var(--win)]">Linked</span>}
+        <StatusBadge status={view.status === "none" ? "none" : verified ? "verified" : "unverified"} />
       </div>
-      <form action={action} className="mt-5">
-        <label htmlFor="steam" className={label}>Your Steam profile link or name</label>
-        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-          <input
-            id="steam"
-            name="steam"
-            autoComplete="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            placeholder="steamcommunity.com/id/yourname"
-            defaultValue={state?.values?.steam ?? (current ? `steamcommunity.com/profiles/${current}` : "")}
-            className={`${input} flex-1`}
-          />
-          <button type="submit" disabled={pending} className={button}>{pending ? "Saving…" : "Save"}</button>
-        </div>
-        <p className="mt-2 text-xs text-[var(--muted)]">Your Steam profile and game details need to be public for games to show.</p>
-        {state?.error && <p role="alert" className="mt-2 text-sm text-[var(--loss)]">{state.error}</p>}
-        {state?.notice && <p className="mt-2 text-sm text-[var(--win)]">{state.notice}</p>}
-      </form>
-      {linked && (
+      {verified ? (
+        <p className="mt-4 text-sm">Signed in with Steam. Ownership confirmed.</p>
+      ) : (
+        <>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            Press the button, sign in on Steam&apos;s own page, and approve. Tap never sees your Steam password. Your Steam profile and game details need to be public for games to show.
+          </p>
+          <a href="/api/steam/start" className={`${button} mt-5 inline-flex items-center`}>
+            {view.account ? "Verify with Steam" : "Sign in with Steam"}
+          </a>
+          {view.account && (
+            <p className="mt-3 text-sm text-amber-500">Your earlier Steam link needs to be verified again. Nothing from it is shown until you do.</p>
+          )}
+        </>
+      )}
+      {result && MESSAGES[result] && <p role="alert" className="mt-3 text-sm text-[var(--loss)]">{MESSAGES[result]}</p>}
+      {result === "ok" && <p className="mt-3 text-sm text-[var(--win)]">Steam verified.</p>}
+      {verified && (
         <div className="mt-6 border-t border-[var(--border)] pt-5">
           <div className="text-sm font-medium">Who can see this activity?</div>
-          <AudienceToggle source="steam" current={audience} />
+          <AudienceToggle source="steam" current={view.audience} />
         </div>
       )}
+      {view.account && <SteamUnlink />}
     </section>
   );
 }
