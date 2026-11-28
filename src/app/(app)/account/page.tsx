@@ -11,6 +11,7 @@ import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ChessForm } from "./ChessForm";
 import { AudienceToggle } from "./AudienceToggle";
 import { SteamCard } from "./SteamCard";
+import { LastfmCard } from "./LastfmCard";
 
 export const metadata: Metadata = { title: "Your account · Tap" };
 
@@ -38,13 +39,19 @@ async function Account() {
 
   const supabase = await createClient();
   await ensureProfile(supabase, user);
-  const [{ data: profile }, { data: chess }] = await Promise.all([
+  const [{ data: profile }, { data: chess }, { data: lastfmConn }] = await Promise.all([
     supabase.from("profiles").select("handle, display_name, bio, avatar_url").eq("id", user.id).maybeSingle(),
     supabase
       .from("connections")
       .select("external_username, audience")
       .eq("user_id", user.id)
       .eq("source", "chesscom")
+      .maybeSingle(),
+    supabase
+      .from("connections")
+      .select("external_username, audience")
+      .eq("user_id", user.id)
+      .eq("source", "lastfm")
       .maybeSingle(),
   ]);
   const { data: steam } = await supabase
@@ -90,6 +97,10 @@ async function Account() {
       </section>
 
       <SteamCard current={steam?.external_username ?? null} audience={steam?.audience === "friends" ? "friends" : "only-me"} />
+      <LastfmCard
+        current={lastfmConn?.external_username ?? null}
+        audience={lastfmConn?.audience === "friends" ? "friends" : "only-me"}
+      />
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>
