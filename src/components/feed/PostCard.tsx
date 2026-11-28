@@ -8,7 +8,7 @@ import { LivePill } from "./LivePill";
 import { ReactionBar } from "./ReactionBar";
 
 /** One activity post: who, what they did, when, the provider's own rendering, and reactions. */
-export function PostCard({ post, now, index = 0 }: { post: FeedPost; now: number; index?: number }) {
+export function PostCard({ post, now, index = 0, isMe = false }: { post: FeedPost; now: number; index?: number; isMe?: boolean }) {
   const provider = getProvider(post.source);
   const accent = provider?.accent ?? "var(--draw)";
   const live = now - new Date(post.occurredAt).getTime() < LIVE_MS;
@@ -25,9 +25,9 @@ export function PostCard({ post, now, index = 0 }: { post: FeedPost; now: number
         <div className="min-w-0 flex-1 leading-tight">
           <p className="truncate text-[15px]">
             <Link href={`/u/${post.author.handle}`} className="font-semibold hover:underline">
-              {post.author.displayName}
+              {isMe ? "You" : post.author.displayName}
             </Link>{" "}
-            <span className="text-[var(--muted)]">{verbFor(post.source, post.kind)}</span>
+            <span className="text-[var(--muted)]">{isMe ? verbFor(post.source, post.kind).replace(/^is /, "are ") : verbFor(post.source, post.kind)}</span>
           </p>
           <div className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--muted)]">
             <span

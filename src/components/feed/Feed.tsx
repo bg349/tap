@@ -7,6 +7,7 @@ import { loadFriendships } from "@/lib/social/queries";
 import { createClient } from "@/lib/supabase/server";
 import { upcoming } from "@/lib/providers/registry";
 import { InviteButton } from "./InviteButton";
+import { LiveFeed } from "./LiveFeed";
 import { LiveNow } from "./LiveNow";
 import { PostCard } from "./PostCard";
 
@@ -44,6 +45,7 @@ export async function Feed({ userId }: { userId: string }) {
     const none = friends.length === 0;
     return (
       <div className="flex flex-col gap-4">
+        <LiveFeed knownIds={[]} />
         <div className={`${card} relative overflow-hidden text-center`}>
           <div aria-hidden className="pointer-events-none absolute left-1/2 top-8 size-24 -translate-x-1/2">
             {[0, 1, 2].map((i) => (
@@ -79,8 +81,9 @@ export async function Feed({ userId }: { userId: string }) {
   }
   return (
     <div className="flex flex-col gap-4">
+      <LiveFeed knownIds={posts.map((p) => p.id)} />
       <LiveNow posts={posts} now={now} myId={userId} />
-      {posts.map((p, i) => <PostCard key={p.id} post={p} now={now} index={i} />)}
+      {posts.map((p, i) => <PostCard key={p.id} post={p} now={now} index={i} isMe={p.author.id === userId} />)}
       {friends.length === 0 && (
         <div className={`${card} flex items-center justify-between gap-3`}>
           <p className="text-sm text-[var(--muted)]">Your feed is just you. Bring a friend along.</p>
