@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { chesscom } from "@/lib/providers/chesscom";
+import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 
 export type FormState = { error?: string; notice?: string; values?: Record<string, string> } | undefined;
@@ -78,6 +79,7 @@ export async function saveChessUsername(_prev: FormState, form: FormData): Promi
 
   const raw = field(form, "chesscom");
   const supabase = await createClient();
+  await ensureProfile(supabase, user);
 
   if (!raw) {
     const { error } = await supabase

@@ -45,4 +45,4 @@ NEXT_PUBLIC_SUPABASE_URL=https://dtxrvqcckszcpwbxmzbf.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable key from Supabase>
 ```
 
-New users get a `profiles` row (and a `connections` row for chess.com, if given) from the trigger in `supabase/migrations/`.
+On first sign-in, `ensureProfile` creates the user's `profiles` row (and a `chesscom` row in `connections`, if they gave a username at sign-up).

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Logo } from "@/components/Logo";
 import { card } from "@/components/ui";
+import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { signOut } from "../auth/actions";
 import { ChessForm } from "./ChessForm";
@@ -33,6 +34,7 @@ async function Account() {
   if (!user) redirect("/login");
 
   const supabase = await createClient();
+  await ensureProfile(supabase, user);
   const [{ data: profile }, { data: chess }] = await Promise.all([
     supabase.from("profiles").select("handle, display_name").eq("id", user.id).maybeSingle(),
     supabase
