@@ -5,7 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 // Landing spot for the link in Supabase's confirmation email.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const next = searchParams.get("next")?.startsWith("/") ? searchParams.get("next")! : "/";
+  // Only same-site paths: reject "//host", "/\\host" and absolute URLs (open redirect).
+  const rawNext = searchParams.get("next") ?? "/";
+  const next = /^\/(?![/\\])/.test(rawNext) ? rawNext : "/";
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;

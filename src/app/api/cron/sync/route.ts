@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getProvider } from "@/lib/providers/registry";
 
@@ -23,7 +24,9 @@ interface Due {
  */
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
-  if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
+  const given = Buffer.from(req.headers.get("authorization") ?? "");
+  const want = Buffer.from(`Bearer ${secret ?? ""}`);
+  if (!secret || given.length !== want.length || !timingSafeEqual(given, want)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -99,7 +99,7 @@ export default function PrivacyPage() {
 
       <Section title="Your choices">
         <p>
-          You can ask to see, correct or delete your data at any time by emailing us. You can
+          You can download all your data or delete your account yourself from the Account page, at any time. You can also ask us by email. You can
           also revoke Tap&apos;s access from your Google or Apple account settings. Cookies are
           used only to keep you signed in, not for tracking.
         </p>

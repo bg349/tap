@@ -11,6 +11,7 @@ import type { LinkView } from "@/lib/verification/config";
 import { signOut } from "@/app/auth/actions";
 import { SteamCard } from "./SteamCard";
 import { VerifyCard } from "./VerifyCard";
+import { DataPrivacy } from "./DataPrivacy";
 
 export const metadata: Metadata = { title: "Link accounts · Tap" };
 
@@ -100,6 +101,8 @@ async function Account({ searchParams }: { searchParams: Promise<{ steam?: strin
         blurb="Shows what you're listening to. Connect Spotify or Apple Music inside Last.fm and your plays appear here."
       />
       <VerifyCard source="letterboxd" view={view("letterboxd")} icon={<LetterboxdMark className="h-4 w-7 shrink-0" />} />
+
+      <DataPrivacy />
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>
