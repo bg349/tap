@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { button, input, label } from "@/components/ui";
-import { saveChessUsername } from "../auth/actions";
+import { saveChessUsername } from "@/app/auth/actions";
 
 export function ChessForm({ current }: { current: string | null }) {
   const [state, action, pending] = useActionState(saveChessUsername, undefined);

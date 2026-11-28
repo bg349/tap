@@ -61,3 +61,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .live-dot::after, .rise { animation: none; }
 }
+
+/* Inside the signed-in app shell the sidebar/top bar already shows the logo. */
+.shell-page > main > header > a:first-child { display: none; }
+.shell-page > main > header { justify-content: flex-end; }
+.shell-page > main { padding-top: 1.5rem; }

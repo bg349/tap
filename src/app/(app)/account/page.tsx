@@ -6,7 +6,7 @@ import { Logo } from "@/components/Logo";
 import { card } from "@/components/ui";
 import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
-import { signOut } from "../auth/actions";
+import { signOut } from "@/app/auth/actions";
 import { connectable } from "@/lib/providers/registry";
 import { ChessForm } from "./ChessForm";
 import { ServiceCard } from "./ServiceCard";
