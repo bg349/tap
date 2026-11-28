@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+import { InviteBanner } from "@/components/social/InviteBanner";
 import { Logo } from "@/components/Logo";
 import { AuthForm } from "../auth/AuthForm";
 
@@ -9,6 +11,9 @@ export default function SignUpPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-4 py-8 sm:py-14">
       <Logo />
+      <Suspense fallback={null}>
+        <InviteBanner />
+      </Suspense>
       <h1 className="mt-14 text-4xl leading-[1.05] font-semibold tracking-tight">
         Make your Tap.
         <span className="text-[var(--muted)]"> Keep your card.</span>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { AuthNav, GuestNav } from "@/components/AuthNav";
+import { InviteBanner } from "@/components/social/InviteBanner";
 import { Logo } from "@/components/Logo";
 import { providers } from "@/lib/providers/registry";
 
@@ -28,6 +29,9 @@ function Landing() {
             <AuthNav />
           </Suspense>
         </header>
+        <Suspense fallback={null}>
+          <InviteBanner />
+        </Suspense>
 
         <section className="mt-12 grid items-center gap-12 md:mt-20 md:grid-cols-[1.1fr_0.9fr]">
           <div>

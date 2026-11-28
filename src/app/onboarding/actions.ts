@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { handleProblem } from "@/lib/handle";
+import { redeemInvite } from "@/lib/social/discovery";
 import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 
@@ -72,7 +73,9 @@ export async function saveProfile(_prev: ProfileState, form: FormData): Promise<
 
   if (mode === "onboarding") {
     (await cookies()).set("tap_onboarded", "1", { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
-    redirect("/");
+    const from = await redeemInvite(supabase, user.id);
+    (await cookies()).delete("tap_ref");
+    redirect(from ? `/welcome?from=${encodeURIComponent(from)}` : "/welcome");
   }
   return { notice: "Saved." };
 }

@@ -6,6 +6,7 @@ import { Avatar } from "@/components/feed/Avatar";
 import { FriendButton } from "@/components/feed/FriendButton";
 import { Logo } from "@/components/Logo";
 import { card, input } from "@/components/ui";
+import { PeopleYouMayKnow } from "@/components/social/PeopleYouMayKnow";
 import { acceptFriendRequest, removeFriendship } from "@/lib/social/actions";
 import { loadFriendships, searchPeople, type Person, type Relation } from "@/lib/social/queries";
 import { createClient, getUser } from "@/lib/supabase/server";
@@ -81,6 +82,10 @@ async function Friends({ searchParams }: { searchParams: PageProps<"/friends">["
         <button className="h-12 rounded-xl bg-[var(--brand)] px-5 font-semibold text-[var(--brand-ink)]">Search</button>
       </form>
 
+      <Link href="/invite" className="mt-3 inline-block text-sm font-medium underline-offset-4 hover:underline">
+        Invite friends with a link or QR code
+      </Link>
+
       {q.trim().length >= 2 && (
         <section>
           <h2 className={sectionTitle}>Results</h2>
@@ -132,6 +137,10 @@ async function Friends({ searchParams }: { searchParams: PageProps<"/friends">["
           </ul>
         )}
       </section>
+
+      <Suspense fallback={null}>
+        <PeopleYouMayKnow />
+      </Suspense>
 
       {outgoing.length > 0 && (
         <section>
