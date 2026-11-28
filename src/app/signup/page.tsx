@@ -18,7 +18,11 @@ export default function SignUpPage() {
       </p>
       <AuthForm mode="signup" />
       <p className="mt-6 text-xs text-[var(--muted)]">
-        By signing up you agree to how we handle your data in our{" "}
+        By signing up you agree to our{" "}
+        <Link href="/terms" className="underline underline-offset-4">
+          Terms of Service
+        </Link>{" "}
+        and how we handle your data in our{" "}
         <Link href="/privacy" className="underline underline-offset-4">
           privacy policy
         </Link>
