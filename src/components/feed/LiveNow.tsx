@@ -30,7 +30,7 @@ export function LiveNow({ posts, now, myId }: { posts: FeedPost[]; now: number; 
                 href={`/u/${p.author.handle}`}
                 className="flex items-center gap-3 rounded-2xl bg-[color-mix(in_srgb,var(--bg)_10%,transparent)] p-2.5 transition-colors hover:bg-[color-mix(in_srgb,var(--bg)_16%,transparent)]"
               >
-                <Avatar name={p.author.displayName} size={40} />
+                <Avatar name={p.author.displayName} src={p.author.avatarUrl} size={40} />
                 <span className="min-w-0 flex-1 leading-tight">
                   <span className="block truncate text-sm font-semibold">{p.author.displayName}</span>
                   <span className="block truncate text-xs opacity-70">

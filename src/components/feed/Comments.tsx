@@ -8,17 +8,17 @@ import { addComment, deleteComment } from "@/lib/social/comments";
 import { timeAgo } from "@/lib/feed/time";
 import { Avatar } from "./Avatar";
 
-type Comment = { id: string; user_id: string; body: string; created_at: string; handle: string; displayName: string };
+type Comment = { id: string; user_id: string; body: string; created_at: string; handle: string; displayName: string; avatarUrl: string | null };
 
 interface Row {
   id: string;
   user_id: string;
   body: string;
   created_at: string;
-  profiles: { handle: string; display_name: string } | null;
+  profiles: { handle: string; display_name: string; avatar_url: string | null } | null;
 }
 
-const SELECT = "id,user_id,body,created_at,profiles!comments_user_id_fkey(handle,display_name)";
+const SELECT = "id,user_id,body,created_at,profiles!comments_user_id_fkey(handle,display_name,avatar_url)";
 const toComment = (r: Row): Comment => ({
   id: r.id,
   user_id: r.user_id,
@@ -26,6 +26,7 @@ const toComment = (r: Row): Comment => ({
   created_at: r.created_at,
   handle: r.profiles?.handle ?? "unknown",
   displayName: r.profiles?.display_name ?? "Someone",
+  avatarUrl: r.profiles?.avatar_url ?? null,
 });
 
 /** Comment button plus a short thread under a card. Loads and goes live only once opened. */
@@ -110,7 +111,7 @@ export function Comments({ itemId, ownerId, viewerId, initialCount }: { itemId: 
           {items?.map((c) => (
             <div key={c.id} className="flex gap-2.5">
               <Link href={`/u/${c.handle}`} aria-label={c.displayName}>
-                <Avatar name={c.displayName} size={28} />
+                <Avatar name={c.displayName} src={c.avatarUrl} size={28} />
               </Link>
               <div className="min-w-0 flex-1 text-sm leading-snug">
                 <p>

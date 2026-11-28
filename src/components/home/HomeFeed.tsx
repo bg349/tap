@@ -32,7 +32,11 @@ export async function HomeFeed() {
 
 async function Friends({ userId, name }: { userId: string; name: string }) {
   const supabase = await createClient();
-  const [{ friends }, posts] = await Promise.all([loadFriendships(supabase, userId), loadPosts(supabase, userId)]);
+  const [{ friends }, posts, { data: me }] = await Promise.all([
+    loadFriendships(supabase, userId),
+    loadPosts(supabase, userId),
+    supabase.from("profiles").select("display_name,avatar_url").eq("id", userId).maybeSingle(),
+  ]);
   const now = currentTime();
   const latest = new Map<string, number>();
   for (const p of posts) {
@@ -41,7 +45,7 @@ async function Friends({ userId, name }: { userId: string; name: string }) {
   }
   const row: Friend[] = friends.map(({ person: f }) => {
     const t = latest.get(f.id) ?? 0;
-    return { id: f.id, handle: f.handle, name: f.displayName, active: now - t < 15 * 60_000, hasNew: now - t < 24 * 3600_000 };
+    return { id: f.id, handle: f.handle, name: f.displayName, avatarUrl: f.avatarUrl, active: now - t < 15 * 60_000, hasNew: now - t < 24 * 3600_000 };
   });
-  return <FriendsRow me={{ name }} friends={row} />;
+  return <FriendsRow me={{ name: me?.display_name || name, avatarUrl: me?.avatar_url }} friends={row} />;
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { handleProblem } from "@/lib/handle";
 import { redeemInvite } from "@/lib/social/discovery";
@@ -70,6 +71,9 @@ export async function saveProfile(_prev: ProfileState, form: FormData): Promise<
     if (error.code === "23514") return { error: handleProblem(handle) ?? "That username isn't allowed.", field: "handle" };
     return { error: "Couldn't save right now. Try again." };
   }
+
+  // Photo, name and handle show up all over the site: refresh every cached page.
+  revalidatePath("/", "layout");
 
   if (mode === "onboarding") {
     (await cookies()).set("tap_onboarded", "1", { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });

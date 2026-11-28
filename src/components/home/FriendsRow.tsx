@@ -3,6 +3,7 @@ export type Friend = {
   id: string;
   handle: string;
   name: string;
+  avatarUrl?: string | null;
   /** Active in the last few minutes (green dot). */
   active: boolean;
   /** Posted in the last day (colored ring). */
@@ -38,7 +39,7 @@ export function FriendsRow({ me, friends }: { me: { name: string; avatarUrl?: st
                   }`}
                 >
                   <span className="block rounded-full border-2 border-[var(--bg)]">
-                    <Avatar name={f.name} className="size-14" />
+                    <Avatar name={f.name} src={f.avatarUrl} className="size-14" />
                   </span>
                 </span>
                 {f.active && (

@@ -6,7 +6,7 @@ export interface NotificationView {
   type: "friend_request" | "friend_accepted" | "reaction";
   read: boolean;
   createdAt: string;
-  actor: { handle: string; displayName: string };
+  actor: { handle: string; displayName: string; avatarUrl: string | null };
   emoji: string | null;
   itemTitle: string | null;
   /** For friend requests: the request is still waiting for an answer. */
@@ -37,7 +37,7 @@ export async function loadNotifications(supabase: SupabaseClient, limit = 60): P
   const itemIds = [...new Set(data.map((r) => r.item_id).filter((x): x is string => !!x))];
   const friendshipIds = data.filter((r) => r.type === "friend_request" && r.friendship_id).map((r) => r.friendship_id!);
   const [{ data: profs }, { data: items }, { data: pending }] = await Promise.all([
-    supabase.from("profiles").select("id,handle,display_name").in("id", actorIds),
+    supabase.from("profiles").select("id,handle,display_name,avatar_url").in("id", actorIds),
     itemIds.length ? supabase.from("items").select("id,title").in("id", itemIds) : Promise.resolve({ data: [] }),
     friendshipIds.length
       ? supabase.from("friendships").select("id").in("id", friendshipIds).eq("status", "pending")
@@ -54,7 +54,7 @@ export async function loadNotifications(supabase: SupabaseClient, limit = 60): P
       type: r.type,
       read: !!r.read_at,
       createdAt: r.created_at,
-      actor: { handle: a.handle as string, displayName: a.display_name as string },
+      actor: { handle: a.handle as string, displayName: a.display_name as string, avatarUrl: (a.avatar_url as string | null) ?? null },
       emoji: r.emoji,
       itemTitle: r.item_id ? (byItem.get(r.item_id) ?? null) : null,
       pendingFriendshipId: r.friendship_id && stillPending.has(r.friendship_id) ? r.friendship_id : null,

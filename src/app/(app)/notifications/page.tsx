@@ -42,7 +42,7 @@ async function Notifications() {
   for (const n of list) {
     const b = bucketOf(n.createdAt, now);
     const row: RowData = {
-      id: n.id, type: n.type, read: n.read, ago: timeAgo(n.createdAt, now), name: n.actor.displayName,
+      id: n.id, type: n.type, read: n.read, ago: timeAgo(n.createdAt, now), name: n.actor.displayName, avatarUrl: n.actor.avatarUrl,
       handle: n.actor.handle, emoji: n.emoji, itemTitle: n.itemTitle, pendingFriendshipId: n.pendingFriendshipId,
     };
     groups.set(b, [...(groups.get(b) ?? []), row]);

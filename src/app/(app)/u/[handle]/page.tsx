@@ -34,7 +34,7 @@ async function Profile({ params }: { params: PageProps<"/u/[handle]">["params"] 
   if (!user) redirect("/login");
   const supabase = await createClient();
   const { data: p } = await supabase
-    .from("profiles").select("id,handle,display_name,bio").eq("handle", handle.toLowerCase()).maybeSingle();
+    .from("profiles").select("id,handle,display_name,bio,avatar_url").eq("handle", handle.toLowerCase()).maybeSingle();
   if (!p) notFound();
 
   const [relation, posts] = await Promise.all([
@@ -46,7 +46,7 @@ async function Profile({ params }: { params: PageProps<"/u/[handle]">["params"] 
   return (
     <>
       <section className="mt-10 flex items-center gap-4">
-        <Avatar name={p.display_name} size={72} />
+        <Avatar name={p.display_name} src={p.avatar_url} size={72} />
         <div className="min-w-0 flex-1 leading-tight">
           <h1 className="truncate text-2xl font-semibold tracking-tight">{p.display_name}</h1>
           <div className="text-[var(--muted)]">@{p.handle}</div>

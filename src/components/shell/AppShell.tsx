@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { MeChip } from "./MeChip";
 import { Logo } from "@/components/Logo";
 import { ActivityPanel } from "./ActivityPanel";
 import { UnreadProvider } from "@/components/notifications/UnreadProvider";
@@ -14,7 +16,12 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
           <Logo />
         </div>
         <SidebarLinks />
-        <div className="mt-auto px-3 text-xs text-[var(--muted)]">
+        <div className="mt-auto">
+          <Suspense fallback={null}>
+            <MeChip />
+          </Suspense>
+        </div>
+        <div className="px-3 text-xs text-[var(--muted)]">
           <Link href="/privacy" className="hover:underline">Privacy</Link>
           <span className="mx-2">·</span>
           <Link href="/terms" className="hover:underline">Terms</Link>
@@ -24,6 +31,9 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
       <div className="flex min-w-0 flex-1 flex-col lg:pr-16">
         <header className="sticky top-0 z-20 flex h-14 items-center border-b border-[var(--border)] bg-[var(--bg)]/90 px-4 backdrop-blur md:hidden">
           <Logo />
+          <Suspense fallback={null}>
+            <MeChip compact />
+          </Suspense>
         </header>
         {wide ? (
           // Pages inside render their own <main>; just drop the duplicate logo header.

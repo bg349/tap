@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { Avatar } from "@/components/Avatar";
 import { button, input, label } from "@/components/ui";
 import { handleProblem } from "@/lib/handle";
 import { checkHandle, saveProfile, type HandleCheck } from "@/app/onboarding/actions";
@@ -74,14 +75,7 @@ export function ProfileForm({ initial, mode, suggestion }: { initial: Initial; m
     <form action={submit} className="mt-8 space-y-6">
       <input type="hidden" name="mode" value={mode} />
       <div className="flex items-center gap-4">
-        <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-full bg-[var(--surface-2)] text-2xl font-semibold text-[var(--muted)]">
-          {preview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="size-full object-cover" />
-          ) : (
-            (name.trim().charAt(0) || "?").toUpperCase()
-          )}
-        </div>
+        <Avatar name={name || handle || "?"} src={preview} size={80} />
         <div className="flex flex-col items-start gap-1">
           <button type="button" onClick={() => fileRef.current?.click()} className="text-sm font-medium underline underline-offset-4">
             {preview ? "Change photo" : "Add a photo"} <span className="font-normal text-[var(--muted)]">(optional)</span>

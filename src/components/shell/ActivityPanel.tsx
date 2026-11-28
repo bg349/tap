@@ -11,6 +11,7 @@ interface Friend {
   id: string;
   handle: string;
   displayName: string;
+  avatarUrl: string | null;
 }
 interface Row {
   user_id: string;
@@ -94,7 +95,7 @@ export function ActivityPanel() {
       }
       const since = new Date(Date.now() - DAY).toISOString();
       const [{ data: ps, error: pe }, { data: its, error: ie }] = await Promise.all([
-        supabase.from("profiles").select("id,handle,display_name").in("id", ids),
+        supabase.from("profiles").select("id,handle,display_name,avatar_url").in("id", ids),
         supabase
           .from("items")
           .select("user_id,source,kind,title,detail,occurred_at")
@@ -104,7 +105,7 @@ export function ActivityPanel() {
           .limit(200),
       ]);
       if (pe || ie) throw pe ?? ie;
-      setFriends(((ps ?? []) as { id: string; handle: string; display_name: string }[]).map((p) => ({ id: p.id, handle: p.handle, displayName: p.display_name })));
+      setFriends(((ps ?? []) as { id: string; handle: string; display_name: string; avatar_url: string | null }[]).map((p) => ({ id: p.id, handle: p.handle, displayName: p.display_name, avatarUrl: p.avatar_url })));
       setRows((its ?? []) as Row[]);
       setNow(Date.now());
       setError(false);
@@ -248,7 +249,7 @@ function Row({ e, open, now }: { e: Entry; open: boolean; now: number }) {
         className={`flex items-center gap-3 px-[14px] py-2 transition-colors hover:bg-[var(--surface-2)] ${e.live ? "" : "opacity-60"}`}
       >
         <span className="relative shrink-0">
-          <Avatar name={e.friend.displayName} size={36} />
+          <Avatar name={e.friend.displayName} src={e.friend.avatarUrl} size={36} />
           <span
             aria-hidden
             className={`absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-[var(--bg)] ${e.live ? "bg-[var(--brand)]" : "bg-[var(--muted)]"}`}

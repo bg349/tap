@@ -5,6 +5,7 @@ export interface Person {
   id: string;
   handle: string;
   displayName: string;
+  avatarUrl: string | null;
 }
 
 export type Relation =
@@ -22,10 +23,11 @@ interface FriendshipRow {
   created_at: string;
 }
 
-const person = (p: { id: string; handle: string; display_name: string }): Person => ({
+const person = (p: { id: string; handle: string; display_name: string; avatar_url?: string | null }): Person => ({
   id: p.id,
   handle: p.handle,
   displayName: p.display_name,
+  avatarUrl: p.avatar_url ?? null,
 });
 
 /** Everything the friends screen needs: friends, incoming and outgoing requests. */
@@ -38,7 +40,7 @@ export async function loadFriendships(supabase: SupabaseClient, me: string) {
   const rows = data ?? [];
   const otherIds = [...new Set(rows.map((r) => (r.requester === me ? r.addressee : r.requester)))];
   const { data: profs } = otherIds.length
-    ? await supabase.from("profiles").select("id,handle,display_name").in("id", otherIds)
+    ? await supabase.from("profiles").select("id,handle,display_name,avatar_url").in("id", otherIds)
     : { data: [] };
   const byId = new Map((profs ?? []).map((p) => [p.id as string, person(p)]));
   const entry = (r: FriendshipRow) => ({
@@ -80,7 +82,7 @@ export async function searchPeople(supabase: SupabaseClient, me: string, q: stri
   if (term.length < 2) return [];
   const { data } = await supabase
     .from("profiles")
-    .select("id,handle,display_name")
+    .select("id,handle,display_name,avatar_url")
     .or(`handle.ilike.%${term}%,display_name.ilike.%${term}%`)
     .neq("id", me)
     .limit(20);

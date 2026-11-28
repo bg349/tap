@@ -32,7 +32,7 @@ function PersonRow({ person, children }: { person: Person; children?: React.Reac
   return (
     <li className="flex items-center gap-3 py-3">
       <Link href={`/u/${person.handle}`} className="flex min-w-0 flex-1 items-center gap-3">
-        <Avatar name={person.displayName} />
+        <Avatar name={person.displayName} src={person.avatarUrl} />
         <span className="min-w-0 leading-tight">
           <span className="block truncate font-semibold">{person.displayName}</span>
           <span className="block truncate text-sm text-[var(--muted)]">@{person.handle}</span>

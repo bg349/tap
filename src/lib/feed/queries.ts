@@ -5,7 +5,7 @@ import type { FeedItem } from "@/lib/providers/types";
 export const REACTION_EMOJI = ["🔥", "👏", "😮", "😂"] as const;
 
 export interface FeedPost extends FeedItem {
-  author: { id: string; handle: string; displayName: string };
+  author: { id: string; handle: string; displayName: string; avatarUrl: string | null };
   reactions: { emoji: string; count: number; mine: boolean }[];
   commentCount: number;
 }
@@ -19,7 +19,7 @@ interface Row {
   detail: string | null;
   payload: Record<string, unknown>;
   occurred_at: string;
-  profiles: { handle: string; display_name: string } | null;
+  profiles: { handle: string; display_name: string; avatar_url: string | null } | null;
 }
 
 /** Newest-first items the viewer is allowed to see (RLS decides), optionally for one person. */
@@ -30,7 +30,7 @@ export async function loadPosts(
 ): Promise<FeedPost[]> {
   let q = supabase
     .from("items")
-    .select("id,user_id,source,kind,title,detail,payload,occurred_at,profiles!items_user_id_fkey(handle,display_name)")
+    .select("id,user_id,source,kind,title,detail,payload,occurred_at,profiles!items_user_id_fkey(handle,display_name,avatar_url)")
     .order("occurred_at", { ascending: false })
     .limit(opts.limit ?? 40);
   if (opts.userId) q = q.eq("user_id", opts.userId);
@@ -67,6 +67,7 @@ export async function loadPosts(
         id: r.user_id,
         handle: r.profiles?.handle ?? "unknown",
         displayName: r.profiles?.display_name ?? "Someone",
+        avatarUrl: r.profiles?.avatar_url ?? null,
       },
       commentCount: commentCounts.get(r.id) ?? 0,
       reactions: REACTION_EMOJI.map((emoji) => ({

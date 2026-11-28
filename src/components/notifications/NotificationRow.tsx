@@ -13,6 +13,7 @@ export interface RowData {
   read: boolean;
   ago: string;
   name: string;
+  avatarUrl?: string | null;
   handle: string;
   emoji: string | null;
   itemTitle: string | null;
@@ -37,7 +38,7 @@ export function NotificationRow({ n }: { n: RowData }) {
   return (
     <li className={`flex items-start gap-3 px-4 py-3.5 ${n.read ? "" : "bg-[var(--brand)]/[0.06]"} ${busy ? "opacity-60" : ""}`}>
       <Link href={`/u/${n.handle}`} className="shrink-0" onClick={() => !n.read && run(() => markNotificationRead(n.id))}>
-        <Avatar name={n.name} />
+        <Avatar name={n.name} src={n.avatarUrl} />
       </Link>
       <div className="min-w-0 flex-1">
         <p className="text-[15px] leading-snug">

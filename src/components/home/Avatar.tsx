@@ -1,24 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
-const hues = [12, 28, 160, 200, 260, 320, 350];
+import { Avatar as Base } from "@/components/Avatar";
 
-export function Avatar({
-  name,
-  src,
-  className = "size-12",
-}: {
-  name: string;
-  src?: string | null;
-  className?: string;
-}) {
-  const hue = hues[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % hues.length];
-  if (src) return <img src={src} alt="" loading="lazy" decoding="async" className={`${className} rounded-full object-cover`} />;
-  return (
-    <span
-      aria-hidden="true"
-      className={`${className} inline-flex shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white`}
-      style={{ background: `hsl(${hue} 65% 52%)` }}
-    >
-      {name.trim().charAt(0).toUpperCase() || "?"}
-    </span>
-  );
+/** Legacy wrapper: maps Tailwind `size-N` classes onto the shared Avatar's pixel size. */
+export function Avatar({ name, src, className = "size-12" }: { name: string; src?: string | null; className?: string }) {
+  const n = /\bsize-(\d+)\b/.exec(className)?.[1];
+  return <Base name={name} src={src} size={n ? Number(n) * 4 : 48} />;
 }

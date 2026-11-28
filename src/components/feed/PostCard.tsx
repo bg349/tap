@@ -21,7 +21,7 @@ export function PostCard({ post, now, index = 0, isMe = false, viewerId = "" }: 
       <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: live ? "var(--brand)" : accent, opacity: live ? 1 : 0.55 }} />
       <header className="flex items-center gap-3">
         <Link href={`/u/${post.author.handle}`} aria-label={post.author.displayName}>
-          <Avatar name={post.author.displayName} />
+          <Avatar name={post.author.displayName} src={post.author.avatarUrl} />
         </Link>
         <div className="min-w-0 flex-1 leading-tight">
           <p className="truncate text-[15px]">
