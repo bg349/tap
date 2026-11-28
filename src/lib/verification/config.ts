@@ -1,5 +1,5 @@
 /** Services that prove ownership with a one-time code placed in a public profile field. */
-export type CodeSource = "chesscom" | "lastfm" | "letterboxd";
+export type CodeSource = "chesscom" | "lastfm" | "letterboxd" | "xbox";
 
 export interface CodeService {
   name: string;
@@ -48,6 +48,18 @@ export const CODE_SERVICES: Record<CodeSource, CodeService> = {
       "Open letterboxd.com/settings and sign in.",
       "Paste the code into the Bio box. Click Save Changes.",
       "Come back here and press “Check now”.",
+    ],
+  },
+  xbox: {
+    name: "Xbox",
+    accountLabel: "Your Xbox gamertag",
+    placeholder: "e.g. Major Nelson",
+    field: "Bio",
+    editUrl: "https://www.xbox.com/en-US/play/user/",
+    steps: [
+      "On your Xbox or the Xbox mobile app, open your profile and choose Customize profile.",
+      "Paste the code into the Bio box and save. (On the web: account.xbox.com/en-us/Profile, then Customize.)",
+      "Make sure your profile is public, wait a minute, then come back here and press “Check now”.",
     ],
   },
 };

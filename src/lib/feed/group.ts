@@ -78,6 +78,7 @@ export function summarize(posts: FeedPost[]): GroupSummary {
       const t = unique(posts.map((p) => p.title));
       return { headline: `listened to ${plural(n, "track")}`, detail: names(t, 2) };
     }
+    case "xbox":
     case "steam": {
       const t = unique(posts.map((p) => p.title));
       const hrs = posts.map((p) => /([\d.]+)\s*h/.exec(p.detail ?? "")?.[1]).filter(Boolean).map(Number);

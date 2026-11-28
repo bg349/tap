@@ -32,7 +32,7 @@ interface Entry {
   live: boolean;
 }
 
-const NAMES: Record<string, string> = { chesscom: "chess.com", lastfm: "Last.fm", letterboxd: "Letterboxd", steam: "Steam", spotify: "Spotify", strava: "Strava" };
+const NAMES: Record<string, string> = { chesscom: "chess.com", lastfm: "Last.fm", letterboxd: "Letterboxd", steam: "Steam", xbox: "Xbox", spotify: "Spotify", strava: "Strava" };
 const DAY = 24 * 60 * 60_000;
 
 /** "Playing Counter-Strike 2", "Listening to X · Y", "Played a bullet game on chess.com". */
@@ -40,6 +40,7 @@ function describe(r: Row): string {
   const name = NAMES[r.source] ?? r.source;
   switch (r.source) {
     case "steam":
+    case "xbox":
       return `Playing ${r.title}`;
     case "lastfm":
     case "spotify":

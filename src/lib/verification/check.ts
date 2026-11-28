@@ -1,5 +1,6 @@
 import "server-only";
 import type { CodeSource } from "./config";
+import { lookupGamertag } from "@/lib/providers/xbox/api";
 
 const UA = "Tap/0.1 (account verification; https://github.com/bg349/tap)";
 const CHESS_API = process.env.CHESSCOM_API_BASE ?? "https://api.chess.com/pub";
@@ -30,6 +31,11 @@ export async function findCode(source: CodeSource, account: string, code: string
       if (res.status === 404) return "no_such_account";
       if (!res.ok) return "unreachable";
       return hasCode(await res.text(), code) ? "found" : "missing";
+    }
+    if (source === "xbox") {
+      const who = await lookupGamertag(account);
+      if (!who) return "no_such_account";
+      return hasCode(who.bio, code) ? "found" : "missing";
     }
     const res = await get(`${LETTERBOXD}/${encodeURIComponent(account)}/`, "text/html");
     if (res.status === 404) return "no_such_account";

@@ -5,9 +5,10 @@ const VERBS: Record<string, Record<string, string>> = {
   letterboxd: { watched: "watched a film", review: "reviewed a film" },
   spotify: { listening: "is listening to", track: "played" },
   strava: { run: "completed a run", ride: "completed a ride", activity: "finished a workout" },
+  xbox: { playing: "is playing", played: "played" },
   steam: { playing: "is playing", played: "played", achievement: "unlocked an achievement" },
 };
-const ICONS: Record<string, string> = { chesscom: "♟", lastfm: "♪", spotify: "♪", strava: "↗", steam: "🎮", letterboxd: "🎬" };
+const ICONS: Record<string, string> = { chesscom: "♟", lastfm: "♪", spotify: "♪", strava: "↗", steam: "🎮", xbox: "🎮", letterboxd: "🎬" };
 
 export function verbFor(source: string, kind: string) {
   return VERBS[source]?.[kind] ?? "did something";
