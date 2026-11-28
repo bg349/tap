@@ -8,12 +8,13 @@ import { chesscom } from "@/lib/providers/chesscom";
 import { lastfm } from "@/lib/providers/lastfm";
 import { letterboxd } from "@/lib/providers/letterboxd";
 import { xbox } from "@/lib/providers/xbox";
+import { lichess } from "@/lib/providers/lichess";
 import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { CODE_SERVICES, isCodeSource, type CodeSource } from "./config";
 import { findCode } from "./check";
 
-const providers = { chesscom, lastfm, letterboxd, xbox } as const;
+const providers = { chesscom, lastfm, letterboxd, xbox, lichess } as const;
 
 /** Step 1: the user names the account; we hand back a one-time code to put on its public profile. */
 export async function startVerification(_prev: FormState, form: FormData): Promise<FormState> {

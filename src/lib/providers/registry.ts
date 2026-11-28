@@ -3,11 +3,12 @@ import { steam } from "./steam";
 import { lastfm } from "./lastfm";
 import { letterboxd } from "./letterboxd";
 import { xbox } from "./xbox";
+import { lichess } from "./lichess";
 import type { Provider, UpcomingProvider } from "./types";
 
 /** Live integrations, in the order they appear on a profile. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const providers: Provider<any>[] = [chesscom, steam, lastfm, letterboxd, xbox];
+export const providers: Provider<any>[] = [chesscom, steam, lastfm, letterboxd, xbox, lichess];
 
 /** Shown on the link screen as "coming soon". */
 export const upcoming: UpcomingProvider[] = [

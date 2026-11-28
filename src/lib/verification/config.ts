@@ -1,5 +1,5 @@
 /** Services that prove ownership with a one-time code placed in a public profile field. */
-export type CodeSource = "chesscom" | "lastfm" | "letterboxd" | "xbox";
+export type CodeSource = "chesscom" | "lastfm" | "letterboxd" | "xbox" | "lichess";
 
 export interface CodeService {
   name: string;
@@ -60,6 +60,18 @@ export const CODE_SERVICES: Record<CodeSource, CodeService> = {
       "On your Xbox or the Xbox mobile app, open your profile and choose Customize profile.",
       "Paste the code into the Bio box and save. (On the web: account.xbox.com/en-us/Profile, then Customize.)",
       "Make sure your profile is public, wait a minute, then come back here and press “Check now”.",
+    ],
+  },
+  lichess: {
+    name: "Lichess",
+    accountLabel: "Your Lichess username",
+    placeholder: "e.g. DrNykterstein",
+    field: "Biography",
+    editUrl: "https://lichess.org/account/profile",
+    steps: [
+      "Open lichess.org/account/profile and sign in.",
+      "Paste the code into the Biography box (you can put it after your text). Click Save.",
+      "Come back here and press “Check now”.",
     ],
   },
 };

@@ -87,7 +87,7 @@ async function Account({ searchParams }: { searchParams: Promise<{ steam?: strin
       <p className="mt-4 text-[var(--muted)]">
         Prove each account is really yours, then choose who sees it. Signed in as {user.email}. Edit your name, photo and bio on your <Link href="/profile" className="underline underline-offset-4">Profile</Link>.
       </p>
-      {["chesscom", "lastfm", "letterboxd", ...(process.env.STEAM_API_KEY ? ["steam"] : []), ...(process.env.XBL_API_KEY ? ["xbox"] : [])].some(legacy) && (
+      {["chesscom", "lastfm", "letterboxd", "lichess", ...(process.env.STEAM_API_KEY ? ["steam"] : []), ...(process.env.XBL_API_KEY ? ["xbox"] : [])].some(legacy) && (
         <p className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm">
           To keep accounts safe, links now need a quick ownership check. Your existing links are saved, but stay hidden from friends until you verify them below.
         </p>
@@ -110,6 +110,13 @@ async function Account({ searchParams }: { searchParams: Promise<{ steam?: strin
         blurb="Shows what you're listening to. Connect Spotify or Apple Music inside Last.fm and your plays appear here."
       />
       <VerifyCard masterPaused={masterPaused} source="letterboxd" view={view("letterboxd")} icon={<LetterboxdMark className="h-4 w-7 shrink-0" />} />
+      <VerifyCard
+        masterPaused={masterPaused}
+        source="lichess"
+        view={view("lichess")}
+        icon={<span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#262522] text-sm text-white">♞</span>}
+        blurb="Shows your Lichess games and ratings, and when you're playing right now."
+      />
       {process.env.XBL_API_KEY && (
         <VerifyCard
           masterPaused={masterPaused}

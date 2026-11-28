@@ -51,6 +51,7 @@ export function summarize(posts: FeedPost[]): GroupSummary {
   const n = posts.length;
   const oldestFirst = [...posts].reverse();
   switch (posts[0].source) {
+    case "lichess":
     case "chesscom": {
       const games = oldestFirst.filter((p) => p.kind === "game");
       const w = games.filter((p) => p.payload.outcome === "win").length;

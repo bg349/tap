@@ -1,6 +1,7 @@
 import "server-only";
 import type { CodeSource } from "./config";
 import { lookupGamertag } from "@/lib/providers/xbox/api";
+import { fetchLichessProfile } from "@/lib/providers/lichess/api";
 
 const UA = "Tap/0.1 (account verification; https://github.com/bg349/tap)";
 const CHESS_API = process.env.CHESSCOM_API_BASE ?? "https://api.chess.com/pub";
@@ -36,6 +37,11 @@ export async function findCode(source: CodeSource, account: string, code: string
       if (body?.error === 6 || res.status === 404) return "no_such_account";
       if (!res.ok || !body || body.error) return "unreachable";
       return hasCode(body.user?.realname ?? "", code) ? "found" : "missing";
+    }
+    if (source === "lichess") {
+      const p = await fetchLichessProfile(account);
+      if (!p) return "no_such_account";
+      return hasCode(p.bio, code) ? "found" : "missing";
     }
     if (source === "xbox") {
       const who = await lookupGamertag(account);
