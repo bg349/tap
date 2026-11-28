@@ -1,8 +1,8 @@
 "use server";
 
+import { COMMENT_MAX } from "@/lib/social/comment-limits";
 import { createClient, getUser } from "@/lib/supabase/server";
 
-export const COMMENT_MAX = 500;
 
 /** Post a comment. RLS + a database trigger enforce visibility, rate limits and duplicates. */
 export async function addComment(itemId: string, body: string): Promise<{ error?: string }> {

@@ -3,7 +3,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { COMMENT_MAX, addComment, deleteComment } from "@/lib/social/comments";
+import { COMMENT_MAX } from "@/lib/social/comment-limits";
+import { addComment, deleteComment } from "@/lib/social/comments";
 import { timeAgo } from "@/lib/feed/time";
 import { Avatar } from "./Avatar";
 
