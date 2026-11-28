@@ -1,17 +1,11 @@
 import { connection } from "next/server";
+import { findCode } from "@/lib/verification/check";
 export async function GET() {
   await connection();
-  const probe = async (url: string) => {
-    try {
-      const r = await fetch(url, { headers: { "User-Agent": "Tap/0.1 (profile aggregator)", Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(8000) });
-      return { status: r.status, head: (await r.text()).slice(0, 120) };
-    } catch (e) {
-      return { error: String(e) };
-    }
-  };
   return Response.json({
-    about: await probe("https://www.reddit.com/user/spez/about.json"),
-    rss: await probe("https://www.reddit.com/user/spez/.rss"),
-    old: await probe("https://old.reddit.com/user/spez/about.json"),
+    lastfm: await findCode("lastfm", "bg949", "TAP-ZZZZ-ZZZZ"),
+    lastfm_nouser: await findCode("lastfm", "zzzqqq9999nouser", "X"),
+    lb: await findCode("letterboxd", "bg49", "TAP-ZZZZ-ZZZZ"),
+    lb_nouser: await findCode("letterboxd", "zzzqqq9999nouser", "X"),
   });
 }
