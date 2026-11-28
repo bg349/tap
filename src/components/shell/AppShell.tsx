@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { ActivityPanel } from "./ActivityPanel";
 import { SidebarLinks, TabBar } from "./NavLinks";
 
 /** Logged-in frame: top bar (mobile), left sidebar (desktop), bottom tabs (mobile). */
@@ -18,7 +19,7 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col lg:pr-16">
         <header className="sticky top-0 z-20 flex h-14 items-center border-b border-[var(--border)] bg-[var(--bg)]/90 px-4 backdrop-blur md:hidden">
           <Logo />
         </header>
@@ -30,6 +31,7 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
         )}
       </div>
 
+      <ActivityPanel />
       <TabBar />
     </div>
   );
