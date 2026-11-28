@@ -66,6 +66,7 @@ const ago = (iso: string, now: number) => {
  */
 export function ActivityPanel() {
   const [friends, setFriends] = useState<Friend[] | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [now, setNow] = useState(() => Date.now());
   const [hover, setHover] = useState(false);
@@ -81,25 +82,20 @@ export function ActivityPanel() {
       const { data: auth } = await supabase.auth.getUser();
       const me = auth.user?.id;
       if (!me) return;
+      setMeId(me);
       const { data: fs, error: fe } = await supabase
         .from("friendships")
         .select("requester,addressee")
         .eq("status", "accepted");
       if (fe) throw fe;
       const ids = [...new Set(((fs ?? []) as { requester: string; addressee: string }[]).map((f) => (f.requester === me ? f.addressee : f.requester) as string))];
-      if (!ids.length) {
-        setFriends([]);
-        setRows([]);
-        setError(false);
-        return;
-      }
       const since = new Date(Date.now() - DAY).toISOString();
       const [{ data: ps, error: pe }, { data: its, error: ie }] = await Promise.all([
-        supabase.from("profiles").select("id,handle,display_name,avatar_url").in("id", ids),
+        supabase.from("profiles").select("id,handle,display_name,avatar_url").in("id", [me, ...ids]),
         supabase
           .from("items")
           .select("user_id,source,kind,title,detail,occurred_at")
-          .in("user_id", ids)
+          .in("user_id", [me, ...ids])
           .gte("occurred_at", since)
           .order("occurred_at", { ascending: false })
           .limit(200),
@@ -145,10 +141,10 @@ export function ActivityPanel() {
     };
   }, [load]);
 
-  const { active, idle } = useMemo(() => {
+  const { active, idle, you } = useMemo(() => {
     const byUser = new Map<string, Row[]>();
     for (const r of rows) byUser.set(r.user_id, [...(byUser.get(r.user_id) ?? []), r]);
-    const entries: Entry[] = (friends ?? []).map((friend) => {
+    const build = (friend: Friend): Entry => {
       const mine = byUser.get(friend.id) ?? [];
       const recent = mine.filter((r) => now - new Date(r.occurred_at).getTime() <= LIVE_MS);
       const pool = recent.length ? recent : mine.slice(0, 1);
@@ -160,14 +156,19 @@ export function ActivityPanel() {
         lines.push({ source: r.source, text: describe(r), at: r.occurred_at });
       }
       return { friend, lines, live: recent.length > 0 };
-    });
+    };
+    const all = friends ?? [];
+    const entries: Entry[] = all.filter((f) => f.id !== meId).map(build);
+    const meFriend = all.find((f) => f.id === meId);
+    const you = meFriend ? build({ ...meFriend, displayName: "You" }) : null;
     const latest = (e: Entry) => (e.lines[0] ? new Date(e.lines[0].at).getTime() : 0);
     entries.sort((a, b) => latest(b) - latest(a));
-    return { active: entries.filter((e) => e.live), idle: entries.filter((e) => !e.live) };
-  }, [friends, rows, now]);
+    return { active: entries.filter((e) => e.live), idle: entries.filter((e) => !e.live), you };
+  }, [friends, rows, now, meId]);
 
   const open = hover || pinned;
   const total = active.length + idle.length;
+  const anyLive = active.length > 0 || !!you?.live;
 
   return (
     <aside
@@ -189,7 +190,7 @@ export function ActivityPanel() {
         aria-label={pinned ? "Unpin activity panel" : "Pin activity panel open"}
         className="flex h-14 shrink-0 items-center gap-2 px-[22px] text-sm font-semibold tracking-tight"
       >
-        <span className={active.length ? "live-dot" : "inline-block size-2 rounded-full bg-[var(--muted)]"} aria-hidden />
+        <span className={anyLive ? "live-dot" : "inline-block size-2 rounded-full bg-[var(--muted)]"} aria-hidden />
         {open && (
           <>
             <span className="flex-1 text-left">Now active</span>
@@ -201,7 +202,10 @@ export function ActivityPanel() {
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pb-6">
         {friends === null ? (
           <p className="px-4 text-xs text-[var(--muted)]">{open ? "Loading…" : "…"}</p>
-        ) : total === 0 ? (
+        ) : (
+          <>
+            {you && <ul><Row e={you} open={open} now={now} self /></ul>}
+            {total === 0 ? (
           open ? (
             <p className="px-5 text-sm text-[var(--muted)]">
               No friends yet. <Link href="/friends" className="font-medium text-[var(--fg)] underline underline-offset-4">Add some</Link> to see what they&apos;re up to.
@@ -222,6 +226,8 @@ export function ActivityPanel() {
             )}
           </>
         )}
+          </>
+        )}
         {error && open && <p className="px-5 pt-2 text-xs text-[var(--muted)]">Couldn&apos;t refresh. Retrying.</p>}
       </div>
     </aside>
@@ -238,7 +244,7 @@ function Section({ title, count, open }: { title: string; count: number; open: b
   );
 }
 
-function Row({ e, open, now }: { e: Entry; open: boolean; now: number }) {
+function Row({ e, open, now, self }: { e: Entry; open: boolean; now: number; self?: boolean }) {
   const first = e.lines[0];
   const extra = e.lines.length - 1;
   return (
@@ -246,7 +252,7 @@ function Row({ e, open, now }: { e: Entry; open: boolean; now: number }) {
       <Link
         href={`/u/${e.friend.handle}`}
         title={open ? undefined : `${e.friend.displayName}${first ? ` · ${first.text}` : ""}`}
-        className={`flex items-center gap-3 px-[14px] py-2 transition-colors hover:bg-[var(--surface-2)] ${e.live ? "" : "opacity-60"}`}
+        className={`flex items-center gap-3 px-[14px] py-2 transition-colors hover:bg-[var(--surface-2)] ${e.live || self ? "" : "opacity-60"}`}
       >
         <span className="relative shrink-0">
           <Avatar name={e.friend.displayName} src={e.friend.avatarUrl} size={36} />
@@ -258,7 +264,18 @@ function Row({ e, open, now }: { e: Entry; open: boolean; now: number }) {
         {open && (
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block truncate text-sm font-semibold">{e.friend.displayName}</span>
-            {first ? (
+            {self ? (
+              <span className="block truncate text-xs text-[var(--muted)]">
+                {e.live ? (
+                  <>
+                    <span aria-hidden>{iconFor(first.source)} </span>
+                    {first.text} · {ago(first.at, now)}
+                  </>
+                ) : (
+                  "Nothing live right now"
+                )}
+              </span>
+            ) : first ? (
               <span className="block truncate text-xs text-[var(--muted)]">
                 <span aria-hidden>{iconFor(first.source)} </span>
                 {e.live ? first.text : `Last active ${ago(first.at, now)}`}
