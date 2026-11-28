@@ -15,7 +15,7 @@ export function LastfmSection({ data }: { data: LastfmData }) {
               <a href={t.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-2xl bg-[var(--surface-2)] p-3">
                 {t.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={t.imageUrl} alt="" width={40} height={40} className="size-10 shrink-0 rounded-md object-cover" />
+                  <img src={t.imageUrl} alt="" width={40} height={40} loading="lazy" decoding="async" className="size-10 shrink-0 rounded-md object-cover" />
                 ) : (
                   <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-md bg-[#d51007] text-white">♪</span>
                 )}

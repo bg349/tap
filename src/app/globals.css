@@ -66,3 +66,13 @@ body {
 .shell-page > main > header > a:first-child { display: none; }
 .shell-page > main > header { justify-content: flex-end; }
 .shell-page > main { padding-top: 1.5rem; }
+
+/* Mobile polish */
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+body { overflow-x: clip; }
+button, a, summary, [role="button"] { touch-action: manipulation; }
+/* Never let iOS zoom on input focus */
+@media (max-width: 767px) { input, select, textarea { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) {
+  .rise, .live-dot::after { animation: none; }
+}

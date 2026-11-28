@@ -11,7 +11,7 @@ export function Avatar({
   className?: string;
 }) {
   const hue = hues[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % hues.length];
-  if (src) return <img src={src} alt="" className={`${className} rounded-full object-cover`} />;
+  if (src) return <img src={src} alt="" loading="lazy" decoding="async" className={`${className} rounded-full object-cover`} />;
   return (
     <span
       aria-hidden="true"

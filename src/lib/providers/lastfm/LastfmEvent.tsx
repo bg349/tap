@@ -8,7 +8,7 @@ export function LastfmEvent({ item }: { item: FeedItem }) {
     <div className="flex items-center gap-3 rounded-2xl bg-[var(--surface-2)] p-4">
       {p.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={p.imageUrl} alt="" width={48} height={48} className="size-12 shrink-0 rounded-lg object-cover" />
+        <img src={p.imageUrl} alt="" width={48} height={48} loading="lazy" decoding="async" className="size-12 shrink-0 rounded-lg object-cover" />
       ) : (
         <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-lg bg-[#d51007] text-xl text-white">♪</span>
       )}
