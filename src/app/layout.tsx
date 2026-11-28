@@ -17,7 +17,15 @@ export const metadata: Metadata = {
   applicationName: "Tap",
   appleWebApp: { capable: true, title: "Tap", statusBarStyle: "default" },
   formatDetection: { telephone: false },
-  icons: { apple: "/icons/apple-touch-icon.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/icons/apple-touch-icon.png",
+  },
   openGraph: { type: "website", siteName: "Tap", title, description },
   twitter: { card: "summary_large_image", title, description },
 };

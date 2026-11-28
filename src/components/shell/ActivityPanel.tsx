@@ -70,7 +70,17 @@ export function ActivityPanel() {
   const [rows, setRows] = useState<Row[]>([]);
   const [now, setNow] = useState(() => Date.now());
   const [hover, setHover] = useState(false);
-  const [pinned, setPinned] = useState(false);
+  const [pinned, setPinnedState] = useState(false);
+  const setPinned = useCallback((v: boolean | ((p: boolean) => boolean)) => {
+    setPinnedState((prev) => {
+      const next = typeof v === "function" ? v(prev) : v;
+      try { localStorage.setItem("tap_panel_pinned", next ? "1" : "0"); } catch {}
+      return next;
+    });
+  }, []);
+  useEffect(() => {
+    try { if (localStorage.getItem("tap_panel_pinned") === "1") setPinnedState(true); } catch {}
+  }, []);
   const [error, setError] = useState(false);
   const clientRef = useRef<ReturnType<typeof createBrowserClient> | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);

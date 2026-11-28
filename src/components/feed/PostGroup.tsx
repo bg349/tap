@@ -46,10 +46,9 @@ export function PostGroup({ posts, now, index = 0, isMe = false }: { posts: Feed
       </div>
       <GroupToggle count={posts.length}>
         {posts.map((p) => (
-          <div key={p.id} className="rounded-2xl border border-[var(--border)] p-3">
-            <p className="mb-2 text-xs text-[var(--muted)]">{timeAgo(p.occurredAt, now)}</p>
-            {provider ? provider.renderEvent(p) : <div className="rounded-2xl bg-[var(--surface-2)] p-3 font-semibold">{p.title}</div>}
-            <div className="mt-2"><ReactionBar itemId={p.id} reactions={p.reactions} /></div>
+          <div key={p.id} className="rounded-xl border border-[var(--border)] px-3 py-2">
+            <p className="mb-1 text-[11px] text-[var(--muted)]">{timeAgo(p.occurredAt, now)}</p>
+            {provider ? provider.renderEvent(p) : <div className="rounded-xl bg-[var(--surface-2)] p-2 text-sm font-semibold">{p.title}</div>}
           </div>
         ))}
       </GroupToggle>

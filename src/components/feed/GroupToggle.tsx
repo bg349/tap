@@ -24,7 +24,7 @@ export function GroupToggle({ count, children }: { count: number; children: Reac
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="flex flex-col gap-3 pt-3">{children}</div>
+          <div className="group-compact flex max-h-[26rem] flex-col gap-2 overflow-y-auto overscroll-contain rounded-2xl pt-3 pr-1">{children}</div>
         </div>
       </div>
     </>

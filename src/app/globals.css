@@ -76,3 +76,8 @@ button, a, summary, [role="button"] { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) {
   .rise, .live-dot::after { animation: none; }
 }
+
+/* Compact look for items inside an expanded group: smaller covers/text, less padding. */
+.group-compact [class*="size-"]:is(img) { max-width: 2.5rem; max-height: 2.5rem; }
+.group-compact .rounded-2xl { border-radius: 0.75rem; padding: 0.5rem 0.65rem; }
+.group-compact .text-lg { font-size: 0.95rem; }

@@ -6,6 +6,8 @@ import { Suspense } from "react";
 import { Avatar } from "@/components/feed/Avatar";
 import { FriendButton } from "@/components/feed/FriendButton";
 import { PostCard } from "@/components/feed/PostCard";
+import { PostGroup } from "@/components/feed/PostGroup";
+import { groupPosts } from "@/lib/feed/group";
 import { Logo } from "@/components/Logo";
 import { card } from "@/components/ui";
 import { loadPosts } from "@/lib/feed/queries";
@@ -74,7 +76,13 @@ async function Profile({ params }: { params: PageProps<"/u/[handle]">["params"] 
         </div>
       ) : (
         <div className="mt-3 flex flex-col gap-4">
-          {posts.map((post) => <PostCard key={post.id} post={post} now={now} viewerId={user.id} />)}
+          {groupPosts(posts).map((e, i) =>
+            e.type === "group" ? (
+              <PostGroup key={e.key} posts={e.posts} now={now} index={i} isMe={e.posts[0].author.id === user.id} />
+            ) : (
+              <PostCard key={e.post.id} post={e.post} now={now} index={i} isMe={e.post.author.id === user.id} viewerId={user.id} />
+            ),
+          )}
         </div>
       )}
     </>
