@@ -1,7 +1,8 @@
-export const dynamic = "force-dynamic";
+import { connection } from "next/server";
 const UA = "Tap/0.1 (account verification; https://github.com/bg349/tap)";
 const BROWSER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 export async function GET() {
+  await connection();
   const out: Record<string, unknown> = {};
   for (const [k, url] of Object.entries({
     lastfm: "https://www.last.fm/user/bg949",
