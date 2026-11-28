@@ -8,14 +8,12 @@ import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
 import { ProfileForm } from "@/components/profile/ProfileForm";
-import { connectable } from "@/lib/providers/registry";
 import { ChessForm } from "./ChessForm";
-import { ServiceCard } from "./ServiceCard";
 import { AudienceToggle } from "./AudienceToggle";
 
 export const metadata: Metadata = { title: "Your account · Tap" };
 
-export default function AccountPage({ searchParams }: { searchParams: Promise<{ link?: string }> }) {
+export default function AccountPage() {
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 py-8 sm:py-14">
       <header className="flex items-center justify-between">
@@ -27,26 +25,27 @@ export default function AccountPage({ searchParams }: { searchParams: Promise<{ 
         </form>
       </header>
       <Suspense fallback={<div className={`${card} mt-14 h-48 animate-pulse`} />}>
-        <Account searchParams={searchParams} />
+        <Account />
       </Suspense>
     </main>
   );
 }
 
-async function Account({ searchParams }: { searchParams: Promise<{ link?: string }> }) {
-  const { link } = await searchParams;
-  const [linkId, linkResult] = (link ?? "").split(":");
+async function Account() {
   const user = await getUser();
   if (!user) redirect("/login");
 
   const supabase = await createClient();
   await ensureProfile(supabase, user);
-  const [{ data: profile }, { data: rows }] = await Promise.all([
+  const [{ data: profile }, { data: chess }] = await Promise.all([
     supabase.from("profiles").select("handle, display_name, bio, avatar_url").eq("id", user.id).maybeSingle(),
-    supabase.from("connections").select("source, external_username, audience").eq("user_id", user.id),
+    supabase
+      .from("connections")
+      .select("external_username, audience")
+      .eq("user_id", user.id)
+      .eq("source", "chesscom")
+      .maybeSingle(),
   ]);
-  const bySource = new Map((rows ?? []).map((r) => [r.source as string, r]));
-  const chess = bySource.get("chesscom");
   const chessName = chess?.external_username ?? null;
   const chessAudience = chess?.audience === "friends" ? "friends" : "only-me";
 
@@ -86,16 +85,6 @@ async function Account({ searchParams }: { searchParams: Promise<{ link?: string
           </div>
         )}
       </section>
-
-      {connectable.map((p) => (
-        <ServiceCard
-          key={p.id}
-          provider={p}
-          linked={bySource.get(p.id)?.external_username ?? null}
-          audience={bySource.get(p.id)?.audience === "friends" ? "friends" : "only-me"}
-          notice={linkId === p.id ? linkResult : undefined}
-        />
-      ))}
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>
