@@ -42,3 +42,22 @@ body {
   background: var(--bg);
   color: var(--fg);
 }
+
+/* Live-activity motif: the logo's concentric rings, rippling outward. */
+@keyframes tap-ripple {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes tap-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.live-dot { position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 9999px; background: var(--brand); }
+.live-dot::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--brand);
+  animation: tap-ripple 1.8s ease-out infinite;
+}
+.rise { animation: tap-rise 0.5s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .live-dot::after, .rise { animation: none; }
+}

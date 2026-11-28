@@ -1,7 +1,6 @@
 import { Suspense } from "react";
-import { Feed } from "@/components/feed/Feed";
+import { Feed, FeedSkeleton } from "@/components/feed/Feed";
 import { AppShell } from "@/components/shell/AppShell";
-import { card } from "@/components/ui";
 import { currentTime } from "@/lib/feed/time";
 import { loadPosts } from "@/lib/feed/queries";
 import { loadFriendships } from "@/lib/social/queries";
@@ -23,7 +22,7 @@ export async function HomeFeed() {
         <Friends userId={user.id} name={name} />
       </Suspense>
       <div className="mt-5">
-        <Suspense fallback={<div className={`${card} h-40 animate-pulse`} />}>
+        <Suspense fallback={<FeedSkeleton />}>
           <Feed userId={user.id} />
         </Suspense>
       </div>

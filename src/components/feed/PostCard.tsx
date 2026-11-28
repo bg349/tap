@@ -3,26 +3,44 @@ import { timeAgo } from "@/lib/feed/time";
 import type { FeedPost } from "@/lib/feed/queries";
 import { getProvider } from "@/lib/providers/registry";
 import { Avatar } from "./Avatar";
+import { LIVE_MS, iconFor, verbFor } from "./activity";
+import { LivePill } from "./LivePill";
 import { ReactionBar } from "./ReactionBar";
 
-/** One activity post: who, when, the provider's own rendering, and reactions. */
-export function PostCard({ post, now }: { post: FeedPost; now: number }) {
+/** One activity post: who, what they did, when, the provider's own rendering, and reactions. */
+export function PostCard({ post, now, index = 0 }: { post: FeedPost; now: number; index?: number }) {
   const provider = getProvider(post.source);
+  const accent = provider?.accent ?? "var(--draw)";
+  const live = now - new Date(post.occurredAt).getTime() < LIVE_MS;
   return (
-    <article className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow)] sm:p-5">
+    <article
+      className="rise relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow)] sm:p-5"
+      style={{ animationDelay: `${Math.min(index, 6) * 60}ms` }}
+    >
+      <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: live ? "var(--brand)" : accent, opacity: live ? 1 : 0.55 }} />
       <header className="flex items-center gap-3">
         <Link href={`/u/${post.author.handle}`} aria-label={post.author.displayName}>
           <Avatar name={post.author.displayName} />
         </Link>
         <div className="min-w-0 flex-1 leading-tight">
-          <Link href={`/u/${post.author.handle}`} className="block truncate font-semibold hover:underline">
-            {post.author.displayName}
-          </Link>
-          <div className="flex items-center gap-1.5 text-xs text-[var(--muted)]">
-            <span className="inline-block size-2 rounded-full" style={{ background: provider?.accent ?? "var(--draw)" }} />
+          <p className="truncate text-[15px]">
+            <Link href={`/u/${post.author.handle}`} className="font-semibold hover:underline">
+              {post.author.displayName}
+            </Link>{" "}
+            <span className="text-[var(--muted)]">{verbFor(post.source, post.kind)}</span>
+          </p>
+          <div className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--muted)]">
+            <span
+              className="grid size-4 place-items-center rounded-full text-[9px] leading-none text-white"
+              style={{ background: accent }}
+              aria-hidden
+            >
+              {iconFor(post.source)}
+            </span>
             {provider?.name ?? post.source} · {timeAgo(post.occurredAt, now)}
           </div>
         </div>
+        {live && <LivePill />}
       </header>
       <div className="mt-3">
         {provider ? (
