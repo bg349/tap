@@ -7,14 +7,13 @@ import { card } from "@/components/ui";
 import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
-import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ChessForm } from "./ChessForm";
 import { LetterboxdCard } from "./LetterboxdCard";
 import { AudienceToggle } from "./AudienceToggle";
 import { SteamCard } from "./SteamCard";
 import { LastfmCard } from "./LastfmCard";
 
-export const metadata: Metadata = { title: "Your account · Tap" };
+export const metadata: Metadata = { title: "Link accounts · Tap" };
 
 export default function AccountPage() {
   return (
@@ -65,24 +64,13 @@ async function Account() {
   return (
     <>
       <h1 className="mt-14 text-4xl leading-[1.05] font-semibold tracking-tight">
-        Hi, {profile?.display_name ?? user.email?.split("@")[0]}.
+        Link accounts
       </h1>
-      <p className="mt-4 text-[var(--muted)]">Signed in as {user.email}</p>
+      <p className="mt-4 text-[var(--muted)]">
+        Connect your games and media, and choose who sees them. Signed in as {user.email}. Edit your name, photo and bio on your <Link href="/profile" className="underline underline-offset-4">Profile</Link>.
+      </p>
 
       <section className={`${card} mt-10`}>
-        <div className="font-semibold">Your profile</div>
-        <ProfileForm
-          mode="account"
-          initial={{
-            handle: profile?.handle ?? "",
-            displayName: profile?.display_name ?? "",
-            bio: profile?.bio ?? "",
-            avatarUrl: profile?.avatar_url ?? null,
-          }}
-        />
-      </section>
-
-      <section className={`${card} mt-6`}>
         <div className="flex items-center gap-3">
           <span className="inline-block size-3 shrink-0 rounded-full" style={{ background: "#7fa650" }} />
           <div className="font-semibold">Chess.com</div>
@@ -111,7 +99,7 @@ async function Account() {
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>
-        <Link href={`/u/${profile?.handle ?? ""}`} className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">My profile</Link>
+        <Link href="/profile" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Profile</Link>
       </div>
 
       {chessName && (

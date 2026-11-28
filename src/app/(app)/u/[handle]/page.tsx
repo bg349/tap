@@ -52,7 +52,7 @@ async function Profile({ params }: { params: PageProps<"/u/[handle]">["params"] 
           <div className="text-[var(--muted)]">@{p.handle}</div>
         </div>
         {relation.state === "self" ? (
-          <Link href="/account" className="h-10 rounded-full border border-[var(--border)] px-4 text-sm leading-10 font-medium">Edit</Link>
+          <Link href="/profile" className="h-10 rounded-full border border-[var(--border)] px-4 text-sm leading-10 font-medium">Edit</Link>
         ) : (
           <FriendButton relation={relation} userId={p.id} />
         )}

@@ -3,6 +3,12 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/Logo";
 import { ShareButton } from "@/components/ShareButton";
+import { redirect } from "next/navigation";
+import { card } from "@/components/ui";
+import { ProfileForm } from "@/components/profile/ProfileForm";
+import { Avatar } from "@/components/feed/Avatar";
+import { ensureProfile } from "@/lib/supabase/profile";
+import { createClient, getUser } from "@/lib/supabase/server";
 import { providers } from "@/lib/providers/registry";
 import type { LinkedIdentity, Provider, ProviderResult } from "@/lib/providers/types";
 
@@ -29,6 +35,8 @@ type Linked = {
 
 async function Profile({ searchParams }: { searchParams: PageProps<"/profile">["searchParams"] }) {
   const params = await searchParams;
+
+  if (!providers.some((p) => params[p.id])) return <OwnProfile />;
 
   const linked: Linked[] = providers.flatMap((provider) => {
     const raw = params[provider.id];
@@ -210,5 +218,41 @@ function CardSkeleton() {
         </div>
       </div>
     </div>
+  );
+}
+
+async function OwnProfile() {
+  const user = await getUser();
+  if (!user) redirect("/login");
+  const supabase = await createClient();
+  await ensureProfile(supabase, user);
+  const { data: p } = await supabase
+    .from("profiles").select("handle, display_name, bio, avatar_url").eq("id", user.id).maybeSingle();
+  return (
+    <>
+      <section className="mt-10 flex items-center gap-4">
+        <Avatar name={p?.display_name ?? "?"} size={72} />
+        <div className="min-w-0 flex-1 leading-tight">
+          <h1 className="truncate text-2xl font-semibold tracking-tight">{p?.display_name}</h1>
+          <div className="text-[var(--muted)]">@{p?.handle}</div>
+        </div>
+        <Link href={`/u/${p?.handle ?? ""}`} className="h-10 rounded-full border border-[var(--border)] px-4 text-sm leading-10 font-medium">View public</Link>
+      </section>
+      <section className={`${card} mt-8`}>
+        <div className="font-semibold">Edit profile</div>
+        <ProfileForm
+          mode="account"
+          initial={{
+            handle: p?.handle ?? "",
+            displayName: p?.display_name ?? "",
+            bio: p?.bio ?? "",
+            avatarUrl: p?.avatar_url ?? null,
+          }}
+        />
+      </section>
+      <p className="mt-6 text-sm text-[var(--muted)]">
+        Games and media are managed under <Link href="/account" className="underline underline-offset-4">Link accounts</Link>.
+      </p>
+    </>
   );
 }
