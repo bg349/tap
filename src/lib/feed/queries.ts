@@ -29,7 +29,7 @@ export async function loadPosts(
 ): Promise<FeedPost[]> {
   let q = supabase
     .from("items")
-    .select("id,user_id,source,kind,title,detail,payload,occurred_at,profiles(handle,display_name)")
+    .select("id,user_id,source,kind,title,detail,payload,occurred_at,profiles!items_user_id_fkey(handle,display_name)")
     .order("occurred_at", { ascending: false })
     .limit(opts.limit ?? 40);
   if (opts.userId) q = q.eq("user_id", opts.userId);
