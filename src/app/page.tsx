@@ -1,9 +1,22 @@
 import { Suspense } from "react";
+import { HomeFeed } from "@/components/home/HomeFeed";
 import { AuthNav, GuestNav } from "@/components/AuthNav";
 import { Logo } from "@/components/Logo";
 import { providers, upcoming } from "@/lib/providers/registry";
 
 export default function Home() {
+  return (
+    <Suspense fallback={<Landing />}>
+      <Gate />
+    </Suspense>
+  );
+}
+
+async function Gate() {
+  return (await HomeFeed()) ?? <Landing />;
+}
+
+function Landing() {
   const [primary] = providers;
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 py-8 sm:py-14">
