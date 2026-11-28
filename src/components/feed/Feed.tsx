@@ -9,7 +9,9 @@ import { upcoming } from "@/lib/providers/registry";
 import { InviteButton } from "./InviteButton";
 import { LiveFeed } from "./LiveFeed";
 import { LiveNow } from "./LiveNow";
+import { groupPosts } from "@/lib/feed/group";
 import { PostCard } from "./PostCard";
+import { PostGroup } from "./PostGroup";
 
 export function FeedSkeleton() {
   return (
@@ -83,7 +85,13 @@ export async function Feed({ userId }: { userId: string }) {
     <div className="flex flex-col gap-4">
       <LiveFeed knownIds={posts.map((p) => p.id)} />
       <LiveNow posts={posts} now={now} myId={userId} />
-      {posts.map((p, i) => <PostCard key={p.id} post={p} now={now} index={i} isMe={p.author.id === userId} />)}
+      {groupPosts(posts).map((e, i) =>
+        e.type === "group" ? (
+          <PostGroup key={e.key} posts={e.posts} now={now} index={i} isMe={e.posts[0].author.id === userId} />
+        ) : (
+          <PostCard key={e.post.id} post={e.post} now={now} index={i} isMe={e.post.author.id === userId} />
+        ),
+      )}
       {friends.length === 0 && (
         <div className={`${card} flex items-center justify-between gap-3`}>
           <p className="text-sm text-[var(--muted)]">Your feed is just you. Bring a friend along.</p>
