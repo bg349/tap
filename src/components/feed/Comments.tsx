@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { COMMENT_MAX } from "@/lib/social/comment-limits";
 import { addComment, deleteComment } from "@/lib/social/comments";
 import { timeAgo } from "@/lib/feed/time";
+import { ReportButton } from "./ReportButton";
 import { Avatar } from "./Avatar";
 
 type Comment = { id: string; user_id: string; body: string; created_at: string; handle: string; displayName: string; avatarUrl: string | null };
@@ -120,6 +121,7 @@ export function Comments({ itemId, ownerId, viewerId, initialCount }: { itemId: 
                 </p>
                 <p className="mt-0.5 whitespace-pre-wrap break-words">{c.body}</p>
               </div>
+              {c.user_id !== viewerId && <ReportButton userId={c.user_id} commentId={c.id} />}
               {(c.user_id === viewerId || ownerId === viewerId) && (
                 <button
                   type="button"

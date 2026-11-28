@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Avatar } from "@/components/feed/Avatar";
 import { FriendButton } from "@/components/feed/FriendButton";
+import { ReportButton } from "@/components/feed/ReportButton";
 import { PostCard } from "@/components/feed/PostCard";
 import { PostGroup } from "@/components/feed/PostGroup";
 import { groupPosts } from "@/lib/feed/group";
@@ -60,6 +61,7 @@ async function Profile({ params }: { params: PageProps<"/u/[handle]">["params"] 
         )}
       </section>
       {p.bio && <p className="mt-4">{p.bio}</p>}
+      {relation.state !== "self" && <div className="mt-2"><ReportButton userId={p.id} /></div>}
 
       <h2 className="mt-8 text-sm font-medium text-[var(--muted)]">Recent activity</h2>
       {posts.length === 0 ? (

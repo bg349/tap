@@ -1,6 +1,7 @@
 "use server";
 
 import { COMMENT_MAX } from "@/lib/social/comment-limits";
+import { hasProfanity } from "@/lib/social/profanity";
 import { createClient, getUser } from "@/lib/supabase/server";
 
 
@@ -11,6 +12,7 @@ export async function addComment(itemId: string, body: string): Promise<{ error?
   const text = body.trim();
   if (!text) return { error: "Write something first." };
   if (text.length > COMMENT_MAX) return { error: `Keep it under ${COMMENT_MAX} characters.` };
+  if (hasProfanity(text)) return { error: "Please keep it friendly: that comment has language we don't allow." };
   const supabase = await createClient();
   const { error } = await supabase.from("comments").insert({ item_id: itemId, user_id: user.id, body: text });
   if (error) {
