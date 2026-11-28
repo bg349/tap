@@ -65,6 +65,30 @@ export interface FeedItem {
   occurredAt: string;
 }
 
+/** Tokens kept for an OAuth-linked account (in `connection_secrets`). */
+export interface TokenSet {
+  accessToken: string;
+  refreshToken?: string;
+  /** Unix seconds. */
+  expiresAt?: number;
+}
+
+/**
+ * How a service is linked with a "Connect" button instead of a typed
+ * username. `begin` returns the URL to send the user to; `complete` runs on
+ * the callback and returns the account id (plus tokens, for OAuth services).
+ */
+export interface ConnectConfig {
+  /** False until the developer app's credentials are set; the UI then says "coming soon". */
+  isConfigured(): boolean;
+  begin(origin: string, state: string): string;
+  complete(params: URLSearchParams, origin: string): Promise<{ account: string; tokens?: TokenSet }>;
+  /** Present for services whose API needs a (refreshable) access token. */
+  refresh?(refreshToken: string): Promise<TokenSet>;
+  /** Friendly text for the linked account on the account page. */
+  describe(account: string): string;
+}
+
 export interface Provider<TData = unknown> {
   /** Stable id, also used as the URL query key, e.g. `chesscom`. */
   id: string;
@@ -80,7 +104,9 @@ export interface Provider<TData = unknown> {
   normalizeAccount(input: string): string;
   fetchAccount(account: string): Promise<ProviderResult<TData>>;
   /** Recent activity for the feed. Throw if the service is unreachable so the sync is retried; return [] for "nothing / no such account". */
-  fetchEvents(account: string): Promise<FeedEvent[]>;
+  fetchEvents(account: string, accessToken?: string): Promise<FeedEvent[]>;
+  /** Set for services linked through a Connect button (Spotify, Strava, Steam). */
+  connect?: ConnectConfig;
   /** Renders one feed row for an event this provider produced. */
   renderEvent(item: FeedItem): ReactNode;
   /** Renders this provider's section of the profile card. */
