@@ -28,7 +28,9 @@ export function LiveFeed({ knownIds }: { knownIds: string[] }) {
       lastSync.current = Date.now();
       setUpdating(true);
       try {
-        if ((await refreshMine()) > 0) router.refresh();
+        // Always refresh on a manual tap: the background sync may already have stored the item.
+        const added = await refreshMine();
+        if (added > 0 || force) router.refresh();
       } finally {
         setUpdating(false);
       }
@@ -63,7 +65,7 @@ export function LiveFeed({ knownIds }: { knownIds: string[] }) {
     // Catch up after the tab was in the background (browsers throttle sockets).
     let last = Date.now();
     const onVisible = () => {
-      if (document.visibilityState === "visible" && Date.now() - last > 120_000) {
+      if (document.visibilityState === "visible" && Date.now() - last > 20_000) {
         last = Date.now();
         router.refresh();
       }
