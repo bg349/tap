@@ -8,11 +8,11 @@ import { getProvider } from "@/lib/providers/registry";
  * every feed load: the database hands back only stale accounts and dedupes
  * events, so repeat calls are cheap.
  */
-export async function syncFeed(supabase: SupabaseClient, opts: { maxAge?: string; onlyUserId?: string } = {}) {
+export async function syncFeed(supabase: SupabaseClient, opts: { maxAge?: string; onlyUserId?: string; onlySource?: string; reportLinked?: boolean } = {}) {
   const { data: stale } = await supabase.rpc("stale_syncs", { max_age: opts.maxAge ?? "10 minutes" });
   let added = 0;
   const list = ((stale ?? []) as { user_id: string; source: string; external_username: string }[]).filter(
-    (s) => !opts.onlyUserId || s.user_id === opts.onlyUserId,
+    (s) => (!opts.onlyUserId || s.user_id === opts.onlyUserId) && (!opts.onlySource || s.source === opts.onlySource),
   );
   if (!list.length) return 0;
 

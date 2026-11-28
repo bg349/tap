@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { MeChip } from "./MeChip";
 import { Logo } from "@/components/Logo";
 import { ActivityPanel } from "./ActivityPanel";
+import { MusicPulse } from "./MusicPulse";
 import { UnreadProvider } from "@/components/notifications/UnreadProvider";
 import { SidebarLinks, TabBar } from "./NavLinks";
 
@@ -44,6 +45,7 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
       </div>
 
       <ActivityPanel />
+      <MusicPulse />
       <TabBar />
     </div>
     </UnreadProvider>
