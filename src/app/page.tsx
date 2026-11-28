@@ -7,7 +7,7 @@ import { providers, upcoming } from "@/lib/providers/registry";
 
 export default function Home() {
   return (
-    <Suspense fallback={<Landing />}>
+    <Suspense fallback={<div className="flex-1" aria-busy="true" />}>
       <Gate />
     </Suspense>
   );
