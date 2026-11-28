@@ -6,9 +6,10 @@ import { Avatar } from "./Avatar";
 import { LIVE_MS, iconFor, verbFor } from "./activity";
 import { LivePill } from "./LivePill";
 import { ReactionBar } from "./ReactionBar";
+import { Comments } from "./Comments";
 
 /** One activity post: who, what they did, when, the provider's own rendering, and reactions. */
-export function PostCard({ post, now, index = 0, isMe = false }: { post: FeedPost; now: number; index?: number; isMe?: boolean }) {
+export function PostCard({ post, now, index = 0, isMe = false, viewerId = "" }: { post: FeedPost; now: number; index?: number; isMe?: boolean; viewerId?: string }) {
   const provider = getProvider(post.source);
   const accent = provider?.accent ?? "var(--draw)";
   const live = now - new Date(post.occurredAt).getTime() < LIVE_MS;
@@ -52,6 +53,7 @@ export function PostCard({ post, now, index = 0, isMe = false }: { post: FeedPos
       <div className="mt-3">
         <ReactionBar itemId={post.id} reactions={post.reactions} />
       </div>
+      <Comments itemId={post.id} ownerId={post.author.id} viewerId={viewerId} initialCount={post.commentCount} />
     </article>
   );
 }

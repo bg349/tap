@@ -89,7 +89,7 @@ export async function Feed({ userId }: { userId: string }) {
         e.type === "group" ? (
           <PostGroup key={e.key} posts={e.posts} now={now} index={i} isMe={e.posts[0].author.id === userId} />
         ) : (
-          <PostCard key={e.post.id} post={e.post} now={now} index={i} isMe={e.post.author.id === userId} />
+          <PostCard key={e.post.id} post={e.post} now={now} index={i} isMe={e.post.author.id === userId} viewerId={userId} />
         ),
       )}
       {friends.length === 0 && (

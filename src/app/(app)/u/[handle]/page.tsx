@@ -74,7 +74,7 @@ async function Profile({ params }: { params: PageProps<"/u/[handle]">["params"] 
         </div>
       ) : (
         <div className="mt-3 flex flex-col gap-4">
-          {posts.map((post) => <PostCard key={post.id} post={post} now={now} />)}
+          {posts.map((post) => <PostCard key={post.id} post={post} now={now} viewerId={user.id} />)}
         </div>
       )}
     </>

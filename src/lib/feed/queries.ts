@@ -7,6 +7,7 @@ export const REACTION_EMOJI = ["🔥", "👏", "😮", "😂"] as const;
 export interface FeedPost extends FeedItem {
   author: { id: string; handle: string; displayName: string };
   reactions: { emoji: string; count: number; mine: boolean }[];
+  commentCount: number;
 }
 
 interface Row {
@@ -41,6 +42,10 @@ export async function loadPosts(
     .from("reactions")
     .select("item_id,user_id,emoji")
     .in("item_id", rows.map((r) => r.id));
+  // Comment counts (zero if the comments table isn't there yet).
+  const { data: cm } = await supabase.from("comments").select("item_id").in("item_id", rows.map((r) => r.id));
+  const commentCounts = new Map<string, number>();
+  for (const c of cm ?? []) commentCounts.set(c.item_id, (commentCounts.get(c.item_id) ?? 0) + 1);
   const byItem = new Map<string, { emoji: string; user_id: string }[]>();
   for (const r of rx ?? []) {
     const list = byItem.get(r.item_id) ?? [];
@@ -63,6 +68,7 @@ export async function loadPosts(
         handle: r.profiles?.handle ?? "unknown",
         displayName: r.profiles?.display_name ?? "Someone",
       },
+      commentCount: commentCounts.get(r.id) ?? 0,
       reactions: REACTION_EMOJI.map((emoji) => ({
         emoji,
         count: list.filter((x) => x.emoji === emoji).length,
