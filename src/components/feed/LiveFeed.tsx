@@ -2,7 +2,8 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { refreshMine } from "@/lib/feed/actions";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 type Status = "connecting" | "live" | "offline";
 
@@ -17,7 +18,26 @@ export function LiveFeed({ knownIds }: { knownIds: string[] }) {
   const [status, setStatus] = useState<Status>("connecting");
   const [fresh, setFresh] = useState<string[]>([]);
   const [pending, startTransition] = useTransition();
+  const [updating, setUpdating] = useState(false);
   const known = useRef(new Set(knownIds));
+  const lastSync = useRef(0);
+  // Pull my own accounts right now (at most once per 30s) so my activity shows up almost instantly.
+  const syncNow = useCallback(
+    async (force = false) => {
+      if (!force && Date.now() - lastSync.current < 30_000) return;
+      lastSync.current = Date.now();
+      setUpdating(true);
+      try {
+        if ((await refreshMine()) > 0) router.refresh();
+      } finally {
+        setUpdating(false);
+      }
+    },
+    [router],
+  );
+  useEffect(() => {
+    void syncNow();
+  }, [syncNow]);
   useEffect(() => {
     known.current = new Set(knownIds);
     setFresh((f) => f.filter((id) => !known.current.has(id)));
@@ -47,13 +67,14 @@ export function LiveFeed({ knownIds }: { knownIds: string[] }) {
         last = Date.now();
         router.refresh();
       }
+      if (document.visibilityState === "visible") void syncNow();
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       document.removeEventListener("visibilitychange", onVisible);
       supabase.removeChannel(channel);
     };
-  }, [router]);
+  }, [router, syncNow]);
 
   const label = status === "live" ? "Live updates on" : status === "connecting" ? "Connecting…" : "Updates paused, reconnecting";
   return (
@@ -64,7 +85,16 @@ export function LiveFeed({ knownIds }: { knownIds: string[] }) {
           className={status === "live" ? "live-dot" : "inline-block rounded-full"}
           style={status === "live" ? { width: 6, height: 6 } : { width: 6, height: 6, background: "var(--muted)" }}
         />
-        {label}
+        {updating ? "Updating…" : label}
+        <button
+          type="button"
+          onClick={() => void syncNow(true)}
+          disabled={updating}
+          aria-label="Refresh my activity"
+          className="ml-1 grid size-6 place-items-center rounded-full border border-[var(--border)] text-[var(--muted)] disabled:opacity-60"
+        >
+          <span aria-hidden className={updating ? "inline-block animate-spin" : ""}>↻</span>
+        </button>
       </p>
       {fresh.length > 0 && (
         <button

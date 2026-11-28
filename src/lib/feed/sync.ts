@@ -8,16 +8,20 @@ import { getProvider } from "@/lib/providers/registry";
  * every feed load: the database hands back only stale accounts and dedupes
  * events, so repeat calls are cheap.
  */
-export async function syncFeed(supabase: SupabaseClient) {
-  const { data: stale } = await supabase.rpc("stale_syncs", { max_age: "10 minutes" });
-  if (!stale?.length) return;
+export async function syncFeed(supabase: SupabaseClient, opts: { maxAge?: string; onlyUserId?: string } = {}) {
+  const { data: stale } = await supabase.rpc("stale_syncs", { max_age: opts.maxAge ?? "10 minutes" });
+  let added = 0;
+  const list = ((stale ?? []) as { user_id: string; source: string; external_username: string }[]).filter(
+    (s) => !opts.onlyUserId || s.user_id === opts.onlyUserId,
+  );
+  if (!list.length) return 0;
 
   await Promise.allSettled(
-    (stale as { user_id: string; source: string; external_username: string }[]).map(async (s) => {
+    list.map(async (s) => {
       const provider = getProvider(s.source);
       if (!provider) return;
       const events = await provider.fetchEvents(s.external_username);
-      const { error } = await supabase.rpc("ingest_items", {
+      const { data: n, error } = await supabase.rpc("ingest_items", {
         target: s.user_id,
         p_source: s.source,
         rows: events.map((e) => ({
@@ -30,6 +34,8 @@ export async function syncFeed(supabase: SupabaseClient) {
         })),
       });
       if (error) throw error;
+      if (typeof n === "number") added += n;
     }),
   );
+  return added;
 }
