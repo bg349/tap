@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { AuthForm } from "../auth/AuthForm";
 
@@ -16,6 +17,13 @@ export default function SignUpPage() {
         An account saves your linked accounts so your profile is always one link away.
       </p>
       <AuthForm mode="signup" />
+      <p className="mt-6 text-xs text-[var(--muted)]">
+        By signing up you agree to how we handle your data in our{" "}
+        <Link href="/privacy" className="underline underline-offset-4">
+          privacy policy
+        </Link>
+        .
+      </p>
     </main>
   );
 }
