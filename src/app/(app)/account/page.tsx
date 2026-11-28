@@ -7,6 +7,7 @@ import { card } from "@/components/ui";
 import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
+import { ProfileForm } from "@/components/profile/ProfileForm";
 import { connectable } from "@/lib/providers/registry";
 import { ChessForm } from "./ChessForm";
 import { ServiceCard } from "./ServiceCard";
@@ -41,7 +42,7 @@ async function Account({ searchParams }: { searchParams: Promise<{ link?: string
   const supabase = await createClient();
   await ensureProfile(supabase, user);
   const [{ data: profile }, { data: rows }] = await Promise.all([
-    supabase.from("profiles").select("handle, display_name").eq("id", user.id).maybeSingle(),
+    supabase.from("profiles").select("handle, display_name, bio, avatar_url").eq("id", user.id).maybeSingle(),
     supabase.from("connections").select("source, external_username, audience").eq("user_id", user.id),
   ]);
   const bySource = new Map((rows ?? []).map((r) => [r.source as string, r]));
@@ -57,6 +58,19 @@ async function Account({ searchParams }: { searchParams: Promise<{ link?: string
       <p className="mt-4 text-[var(--muted)]">Signed in as {user.email}</p>
 
       <section className={`${card} mt-10`}>
+        <div className="font-semibold">Your profile</div>
+        <ProfileForm
+          mode="account"
+          initial={{
+            handle: profile?.handle ?? "",
+            displayName: profile?.display_name ?? "",
+            bio: profile?.bio ?? "",
+            avatarUrl: profile?.avatar_url ?? null,
+          }}
+        />
+      </section>
+
+      <section className={`${card} mt-6`}>
         <div className="flex items-center gap-3">
           <span className="inline-block size-3 shrink-0 rounded-full" style={{ background: "#7fa650" }} />
           <div className="font-semibold">Chess.com</div>

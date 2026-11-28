@@ -12,7 +12,7 @@ export async function ensureProfile(supabase: SupabaseClient, user: User) {
 
   const chess = typeof user.user_metadata?.chesscom === "string" ? user.user_metadata.chesscom : null;
   const emailName = user.email?.split("@")[0] ?? "player";
-  const base = (chess ?? emailName).toLowerCase().replace(/[^a-z0-9_]/g, "_").padEnd(3, "_").slice(0, 19);
+  const base = (chess ?? emailName).toLowerCase().replace(/[^a-z0-9_]/g, "_").padEnd(3, "_").slice(0, 15);
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const handle = attempt === 0 ? base : `${base}_${Math.floor(1000 + Math.random() * 9000)}`;
