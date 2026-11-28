@@ -63,3 +63,17 @@ export async function setAudience(source: string, audience: "only-me" | "friends
   await supabase.from("connections").update({ audience }).eq("user_id", user.id).eq("source", source);
   refresh();
 }
+
+/** Pause or resume sharing for one linked app. Enforced in the database (feed visibility + sync). */
+export async function setSourcePaused(source: string, paused: boolean) {
+  const { user, supabase } = await me();
+  await supabase.from("connections").update({ paused: Boolean(paused) }).eq("user_id", user.id).eq("source", source);
+  revalidatePath("/", "layout");
+}
+
+/** Master switch: pause or resume sharing from every app at once. */
+export async function setAllPaused(paused: boolean) {
+  const { user, supabase } = await me();
+  await supabase.from("profiles").update({ sharing_paused: Boolean(paused) }).eq("id", user.id);
+  revalidatePath("/", "layout");
+}

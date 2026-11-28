@@ -5,6 +5,7 @@ import { button, card, input, label } from "@/components/ui";
 import { checkVerification, startVerification, unlinkAccount } from "@/lib/verification/actions";
 import { CODE_SERVICES, type CodeSource, type LinkView } from "@/lib/verification/config";
 import { AudienceToggle } from "./AudienceToggle";
+import { PauseToggle } from "./PauseControls";
 
 export function StatusBadge({ status }: { status: LinkView["status"] }) {
   const map = {
@@ -55,10 +56,16 @@ function Msg({ state }: { state: { error?: string; notice?: string } | undefined
 function Unlink({ source }: { source: string }) {
   const [state, action, pending] = useActionState(unlinkAccount, undefined);
   return (
-    <form action={action} className="mt-4">
+    <form
+      action={action}
+      className="mt-4"
+      onSubmit={(e) => {
+        if (!window.confirm("Disconnect this account? Its activity will be removed from Tap and you'll need to verify it again to reconnect.")) e.preventDefault();
+      }}
+    >
       <input type="hidden" name="source" value={source} />
-      <button type="submit" disabled={pending} className="text-sm text-[var(--muted)] underline underline-offset-4 disabled:opacity-50">
-        {pending ? "Unlinking…" : "Unlink"}
+      <button type="submit" disabled={pending} className="text-sm text-[var(--loss)] underline underline-offset-4 disabled:opacity-50">
+        {pending ? "Disconnecting…" : "Disconnect account"}
       </button>
       <Msg state={state} />
     </form>
@@ -66,7 +73,7 @@ function Unlink({ source }: { source: string }) {
 }
 
 /** One card per service. Walks through: Not linked → Pending verification → Verified / Failed. */
-export function VerifyCard({ source, view, icon, blurb }: { source: CodeSource; view: LinkView; icon: ReactNode; blurb?: string }) {
+export function VerifyCard({ source, view, icon, blurb, masterPaused = false }: { source: CodeSource; view: LinkView; icon: ReactNode; blurb?: string; masterPaused?: boolean }) {
   const svc = CODE_SERVICES[source];
   const [startState, startAction, starting] = useActionState(startVerification, undefined);
   const [checkState, checkAction, checking] = useActionState(checkVerification, undefined);
@@ -140,6 +147,7 @@ export function VerifyCard({ source, view, icon, blurb }: { source: CodeSource; 
         <div className="mt-6 border-t border-[var(--border)] pt-5">
           <div className="text-sm font-medium">Who can see this activity?</div>
           <AudienceToggle source={source} current={view.audience} />
+          <PauseToggle source={source} paused={view.paused} masterPaused={masterPaused} />
         </div>
       )}
       {view.account && <Unlink source={source} />}

@@ -12,6 +12,7 @@ import { signOut } from "@/app/auth/actions";
 import { SteamCard } from "./SteamCard";
 import { VerifyCard } from "./VerifyCard";
 import { DataPrivacy } from "./DataPrivacy";
+import { MasterPause } from "./PauseControls";
 
 export const metadata: Metadata = { title: "Link accounts · Tap" };
 
@@ -37,6 +38,7 @@ interface Row {
   source: string;
   external_username: string | null;
   audience: string;
+  paused: boolean;
   verified_at: string | null;
   verify_code: string | null;
   verify_expires_at: string | null;
@@ -49,6 +51,7 @@ function toView(row: Row | undefined): LinkView {
     status: !row ? "none" : row.verified_at ? "verified" : row.verify_code && !expired ? "pending" : row.verify_code ? "expired" : "unverified",
     code: row?.verified_at ? null : (row?.verify_code ?? null),
     expiresAt: row?.verify_expires_at ?? null,
+    paused: Boolean(row?.paused),
     audience: row?.audience === "friends" ? "friends" : "only-me",
   };
 }
@@ -62,9 +65,11 @@ async function Account({ searchParams }: { searchParams: Promise<{ steam?: strin
   await ensureProfile(supabase, user);
   const { data } = await supabase
     .from("connections")
-    .select("source, external_username, audience, verified_at, verify_code, verify_expires_at")
+    .select("source, external_username, audience, paused, verified_at, verify_code, verify_expires_at")
     .eq("user_id", user.id)
     .returns<Row[]>();
+  const { data: prof } = await supabase.from("profiles").select("sharing_paused").eq("id", user.id).maybeSingle();
+  const masterPaused = Boolean(prof?.sharing_paused);
   const by = new Map((data ?? []).map((r) => [r.source, r]));
   const view = (s: string) => toView(by.get(s));
   // An old link with no code and no verification still needs proving: show it as "needs verification".
@@ -88,19 +93,23 @@ async function Account({ searchParams }: { searchParams: Promise<{ steam?: strin
         </p>
       )}
 
+      <MasterPause paused={masterPaused} />
+
       <VerifyCard
+        masterPaused={masterPaused}
         source="chesscom"
         view={chess}
         icon={<span className="inline-block size-3 shrink-0 rounded-full" style={{ background: "#7fa650" }} />}
       />
       {process.env.STEAM_API_KEY && <SteamCard view={view("steam")} result={steamResult} />}
       <VerifyCard
+        masterPaused={masterPaused}
         source="lastfm"
         view={view("lastfm")}
         icon={<span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#d51007] text-sm font-bold text-white">as</span>}
         blurb="Shows what you're listening to. Connect Spotify or Apple Music inside Last.fm and your plays appear here."
       />
-      <VerifyCard source="letterboxd" view={view("letterboxd")} icon={<LetterboxdMark className="h-4 w-7 shrink-0" />} />
+      <VerifyCard masterPaused={masterPaused} source="letterboxd" view={view("letterboxd")} icon={<LetterboxdMark className="h-4 w-7 shrink-0" />} />
 
       <DataPrivacy />
 

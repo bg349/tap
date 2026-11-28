@@ -62,4 +62,5 @@ export interface LinkView {
   code: string | null;
   expiresAt: string | null;
   audience: "only-me" | "friends";
+  paused: boolean;
 }

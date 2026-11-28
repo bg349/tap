@@ -95,6 +95,8 @@ export async function unlinkAccount(_prev: FormState, form: FormData): Promise<F
   const supabase = await createClient();
   const { error } = await supabase.from("connections").delete().eq("user_id", user.id).eq("source", source);
   if (error) return { error: "Couldn't unlink right now. Try again." };
+  // Disconnecting also removes that app's shared activity (owner can delete own items).
+  await supabase.from("items").delete().eq("user_id", user.id).eq("source", source);
   revalidatePath("/account");
   return { notice: "Unlinked." };
 }
