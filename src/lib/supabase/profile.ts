@@ -29,7 +29,7 @@ export async function ensureProfile(supabase: SupabaseClient, user: User) {
     await supabase
       .from("connections")
       .upsert(
-        { user_id: user.id, source: "chesscom", external_username: chess, audience: "friends" },
+        { user_id: user.id, source: "chesscom", external_username: chess, audience: "only-me" },
         { onConflict: "user_id,source", ignoreDuplicates: true },
       );
   }

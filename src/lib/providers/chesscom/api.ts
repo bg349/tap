@@ -55,7 +55,7 @@ interface RawGameSide {
   result: string;
 }
 
-interface RawGame {
+export interface RawGame {
   url: string;
   end_time: number;
   time_class: string;
@@ -106,10 +106,11 @@ export interface ChessData {
 
 // ---------- Fetching ----------
 
-class NotFoundError extends Error {}
+export class NotFoundError extends Error {}
 
-async function getJson<T>(path: string): Promise<T> {
+export async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
+    signal: AbortSignal.timeout(5000),
     headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
   });
   if (res.status === 404 || res.status === 410) throw new NotFoundError(path);
@@ -132,7 +133,7 @@ function outcomeOf(result: string): ChessGame["outcome"] {
   return "loss";
 }
 
-function toGame(raw: RawGame, username: string): ChessGame {
+export function toGame(raw: RawGame, username: string): ChessGame {
   const isWhite = raw.white.username.toLowerCase() === username;
   const me = isWhite ? raw.white : raw.black;
   const them = isWhite ? raw.black : raw.white;

@@ -1,5 +1,7 @@
 import type { Provider } from "../types";
 import { fetchChessAccount, type ChessData } from "./api";
+import { ChessEvent } from "./ChessEvent";
+import { fetchChessEvents } from "./events";
 import { ChessSection } from "./ChessSection";
 
 export const chesscom: Provider<ChessData> = {
@@ -20,5 +22,7 @@ export const chesscom: Provider<ChessData> = {
     return null;
   },
   fetchAccount: fetchChessAccount,
+  fetchEvents: fetchChessEvents,
+  renderEvent: (item) => <ChessEvent item={item} />,
   renderSection: (data) => <ChessSection data={data} />,
 };

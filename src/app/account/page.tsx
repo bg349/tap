@@ -8,6 +8,7 @@ import { ensureProfile } from "@/lib/supabase/profile";
 import { createClient, getUser } from "@/lib/supabase/server";
 import { signOut } from "../auth/actions";
 import { ChessForm } from "./ChessForm";
+import { AudienceToggle } from "./AudienceToggle";
 
 export const metadata: Metadata = { title: "Your account · Tap" };
 
@@ -39,12 +40,13 @@ async function Account() {
     supabase.from("profiles").select("handle, display_name").eq("id", user.id).maybeSingle(),
     supabase
       .from("connections")
-      .select("external_username")
+      .select("external_username, audience")
       .eq("user_id", user.id)
       .eq("source", "chesscom")
       .maybeSingle(),
   ]);
   const chessName = chess?.external_username ?? null;
+  const chessAudience = chess?.audience === "friends" ? "friends" : "only-me";
 
   return (
     <>
@@ -62,7 +64,18 @@ async function Account() {
         <div className="mt-5">
           <ChessForm current={chessName} />
         </div>
+        {chessName && (
+          <div className="mt-6 border-t border-[var(--border)] pt-5">
+            <div className="text-sm font-medium">Who can see this activity?</div>
+            <AudienceToggle source="chesscom" current={chessAudience} />
+          </div>
+        )}
       </section>
+
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>
+        <Link href={`/u/${profile?.handle ?? ""}`} className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">My profile</Link>
+      </div>
 
       {chessName && (
         <Link

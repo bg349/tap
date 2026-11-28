@@ -42,6 +42,29 @@ export type ProviderResult<TData> =
       message: string;
     };
 
+/** One thing that happened on a linked account; becomes a row in `items`. */
+export interface FeedEvent {
+  /** Stable per account so re-syncing never duplicates it. */
+  externalId: string;
+  kind: string;
+  title: string;
+  detail?: string;
+  payload: Record<string, unknown>;
+  /** ISO timestamp of when it happened on the service. */
+  occurredAt: string;
+}
+
+/** A stored event as the feed shows it. */
+export interface FeedItem {
+  id: string;
+  source: string;
+  kind: string;
+  title: string;
+  detail: string | null;
+  payload: Record<string, unknown>;
+  occurredAt: string;
+}
+
 export interface Provider<TData = unknown> {
   /** Stable id, also used as the URL query key, e.g. `chesscom`. */
   id: string;
@@ -56,6 +79,10 @@ export interface Provider<TData = unknown> {
   /** Normalizes user input (trim, lowercase, strip URL) into an account id. */
   normalizeAccount(input: string): string;
   fetchAccount(account: string): Promise<ProviderResult<TData>>;
+  /** Recent activity for the feed. Throw if the service is unreachable so the sync is retried; return [] for "nothing / no such account". */
+  fetchEvents(account: string): Promise<FeedEvent[]>;
+  /** Renders one feed row for an event this provider produced. */
+  renderEvent(item: FeedItem): ReactNode;
   /** Renders this provider's section of the profile card. */
   renderSection(data: TData, identity: LinkedIdentity): ReactNode;
 }

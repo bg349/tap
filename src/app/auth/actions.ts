@@ -40,7 +40,7 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
     password,
     options: {
       data: chess ? { chesscom: chess } : {},
-      emailRedirectTo: `${await siteOrigin()}/auth/confirm?next=/account`,
+      emailRedirectTo: `${await siteOrigin()}/auth/confirm?next=/`,
     },
   });
   if (error) return { error: error.message, values };
@@ -49,7 +49,7 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
   if (data.user && data.user.identities?.length === 0) {
     return { error: "That email already has an account. Try signing in.", values };
   }
-  if (data.session) redirect("/account");
+  if (data.session) redirect("/");
   return { notice: `Check ${email} for a link to confirm your account.` };
 }
 
@@ -64,7 +64,7 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
       : "That email and password don't match.";
     return { error: message, values: { email } };
   }
-  redirect("/account");
+  redirect("/");
 }
 
 export async function signOut() {
@@ -94,12 +94,17 @@ export async function saveChessUsername(_prev: FormState, form: FormData): Promi
   if (invalid) return { error: invalid, values: { chesscom: raw } };
   const username = chesscom.normalizeAccount(raw);
 
-  const { error } = await supabase
-    .from("connections")
-    .upsert(
-      { user_id: user.id, source: "chesscom", external_username: username, audience: "friends" },
-      { onConflict: "user_id,source" },
-    );
+  // New links start private ("only-me"); re-saving keeps whatever audience the owner chose.
+  const { data: existing } = await supabase
+    .from("connections").select("id").eq("user_id", user.id).eq("source", "chesscom").maybeSingle();
+  const { error } = existing
+    ? await supabase
+        .from("connections")
+        .update({ external_username: username, last_synced_at: null })
+        .eq("id", existing.id)
+    : await supabase
+        .from("connections")
+        .insert({ user_id: user.id, source: "chesscom", external_username: username, audience: "only-me" });
   if (error) return { error: "Couldn't save right now. Try again.", values: { chesscom: raw } };
   return { notice: "Saved.", values: { chesscom: username } };
 }
@@ -133,7 +138,7 @@ export async function signInWithProvider(_prev: FormState, form: FormData): Prom
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
-    options: { redirectTo: `${await siteOrigin()}/auth/confirm?next=/account`, skipBrowserRedirect: true },
+    options: { redirectTo: `${await siteOrigin()}/auth/confirm?next=/`, skipBrowserRedirect: true },
   });
   if (error || !data.url) return { error: `Couldn't reach ${name} right now. Try again.` };
   redirect(data.url);
