@@ -81,3 +81,19 @@ button, a, summary, [role="button"] { touch-action: manipulation; }
 .group-compact [class*="size-"]:is(img) { max-width: 2.5rem; max-height: 2.5rem; }
 .group-compact .rounded-2xl { border-radius: 0.75rem; padding: 0.5rem 0.65rem; }
 .group-compact .text-lg { font-size: 0.95rem; }
+
+/* Light polish: gentle hover lift on feed cards, press feedback, smooth focus. */
+article.rise { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+@media (hover: hover) {
+  article.rise:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--brand) 35%, var(--border)); }
+}
+button, a[class*="rounded-full"], a[class*="rounded-xl"], [role="button"] {
+  transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+button:not(:disabled):active, a[class*="rounded-full"]:active, a[class*="rounded-xl"]:active, [role="button"]:active { transform: scale(0.96); }
+input, textarea, select { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  article.rise, button, a, input { transition: none; }
+  article.rise:hover, button:active, a:active { transform: none; }
+}
