@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { ActivityPanel } from "./ActivityPanel";
+import { UnreadProvider } from "@/components/notifications/UnreadProvider";
 import { SidebarLinks, TabBar } from "./NavLinks";
 
 /** Logged-in frame: top bar (mobile), left sidebar (desktop), bottom tabs (mobile). */
 export function AppShell({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
+    <UnreadProvider>
     <div className="flex min-h-screen flex-1">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[var(--border)] px-4 py-6 md:flex">
         <div className="px-3">
@@ -34,5 +36,6 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
       <ActivityPanel />
       <TabBar />
     </div>
+    </UnreadProvider>
   );
 }

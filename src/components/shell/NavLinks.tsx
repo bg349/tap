@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icon";
+import { UnreadBadge } from "@/components/notifications/UnreadProvider";
 import { navItems } from "./nav";
 
 function isActive(pathname: string, href: string) {
@@ -23,6 +24,7 @@ export function SidebarLinks() {
           <>
             <Icon name={item.id} filled={active && item.id === "home"} />
             <span>{item.label}</span>
+            {item.id === "notifications" && <UnreadBadge className="ml-auto" />}
             {!item.ready && <span className="ml-auto rounded-full bg-[var(--surface-2)] px-2 py-0.5 text-[10px] text-[var(--muted)]">Soon</span>}
           </>
         );
@@ -58,7 +60,10 @@ export function TabBar() {
           }`;
           const inner = (
             <>
-              <Icon name={item.id} className="size-6" filled={active && item.id === "home"} />
+              <span className="relative">
+                <Icon name={item.id} className="size-6" filled={active && item.id === "home"} />
+                {item.id === "notifications" && <UnreadBadge className="absolute -top-1.5 -right-2.5 !min-w-[16px] !text-[10px] !leading-4" />}
+              </span>
               <span className="sr-only">{item.label}</span>
             </>
           );
