@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { chesscom } from "@/lib/providers/chesscom";
 import { ensureProfile } from "@/lib/supabase/profile";
-import { createClient, getUser } from "@/lib/supabase/server";
+import { createClient, getUser, supabaseConfig } from "@/lib/supabase/server";
 
 export type FormState = { error?: string; notice?: string; values?: Record<string, string> } | undefined;
 
@@ -102,4 +102,39 @@ export async function saveChessUsername(_prev: FormState, form: FormData): Promi
     );
   if (error) return { error: "Couldn't save right now. Try again.", values: { chesscom: raw } };
   return { notice: "Saved.", values: { chesscom: username } };
+}
+
+const OAUTH_PROVIDERS = { google: "Google", apple: "Apple" } as const;
+type OAuthProvider = keyof typeof OAUTH_PROVIDERS;
+
+/** Which social sign-ins are switched on in Supabase. Empty if Supabase can't be reached. */
+async function enabledProviders(): Promise<Record<string, boolean>> {
+  try {
+    const { url, key } = supabaseConfig();
+    const res = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key }, cache: "no-store" });
+    if (!res.ok) return {};
+    const body = (await res.json()) as { external?: Record<string, boolean> };
+    return body.external ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export async function signInWithProvider(_prev: FormState, form: FormData): Promise<FormState> {
+  const provider = field(form, "provider") as OAuthProvider;
+  const name = OAUTH_PROVIDERS[provider];
+  if (!name) return { error: "That sign-in option isn't available." };
+
+  const enabled = await enabledProviders();
+  if (!enabled[provider]) {
+    return { error: `${name} sign-in isn't switched on yet. Use email for now.` };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: `${await siteOrigin()}/auth/confirm?next=/account`, skipBrowserRedirect: true },
+  });
+  if (error || !data.url) return { error: `Couldn't reach ${name} right now. Try again.` };
+  redirect(data.url);
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { button, card, input, label } from "@/components/ui";
 import { signIn, signUp } from "./actions";
+import { SocialButtons } from "./SocialButtons";
 
 export function AuthForm({ mode }: { mode: "signup" | "login" }) {
   const isSignup = mode === "signup";
@@ -19,7 +20,14 @@ export function AuthForm({ mode }: { mode: "signup" | "login" }) {
   }
 
   return (
-    <form action={action} className={`${card} mt-10 space-y-5`}>
+    <div className={`${card} mt-10 space-y-5`}>
+      <SocialButtons isSignup={isSignup} />
+      <div className="flex items-center gap-3 text-xs text-[var(--muted)]">
+        <span className="h-px flex-1 bg-[var(--border)]" />
+        or use email
+        <span className="h-px flex-1 bg-[var(--border)]" />
+      </div>
+    <form action={action} className="space-y-5">
       <div>
         <label htmlFor="email" className={label}>Email</label>
         <input
@@ -78,5 +86,6 @@ export function AuthForm({ mode }: { mode: "signup" | "login" }) {
         </Link>
       </p>
     </form>
+    </div>
   );
 }
