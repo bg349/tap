@@ -9,6 +9,7 @@ import { createClient, getUser } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ChessForm } from "./ChessForm";
+import { LetterboxdCard } from "./LetterboxdCard";
 import { AudienceToggle } from "./AudienceToggle";
 import { SteamCard } from "./SteamCard";
 import { LastfmCard } from "./LastfmCard";
@@ -56,6 +57,8 @@ async function Account() {
   ]);
   const { data: steam } = await supabase
     .from("connections").select("external_username, audience").eq("user_id", user.id).eq("source", "steam").maybeSingle();
+  const { data: lb } = await supabase
+    .from("connections").select("external_username, audience").eq("user_id", user.id).eq("source", "letterboxd").maybeSingle();
   const chessName = chess?.external_username ?? null;
   const chessAudience = chess?.audience === "friends" ? "friends" : "only-me";
 
@@ -101,6 +104,10 @@ async function Account() {
         current={lastfmConn?.external_username ?? null}
         audience={lastfmConn?.audience === "friends" ? "friends" : "only-me"}
       />
+
+      <section className={`${card} mt-6`}>
+        <LetterboxdCard current={lb?.external_username ?? null} audience={lb?.audience === "friends" ? "friends" : "only-me"} />
+      </section>
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href="/friends" className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--border)] px-5 font-medium">Friends</Link>
